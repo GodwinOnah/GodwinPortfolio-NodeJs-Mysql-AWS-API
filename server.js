@@ -1,106 +1,419 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import bcrypt from 'bcrypt-nodejs';
 import cors from 'cors';
 import knex from 'knex';
+import bcrypt from 'bcryptjs-react';
+
+
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
-const db = knex({    //connecting to database using knex
-  client: 'pg',
-  connection: {
-    connectionString: process.env.DATABASE_URL,
-    ssl : true
-  }
+
+//connecting to database using knex
+const db = knex({    
+        client: 'pg',
+        connection:{
+        host :'127.0.0.1',
+        user:'godwinonah',
+        password:'',
+        database:'GodwinPortfolio'
+        }
 });
+// brew start psql
+// createdb 'GodwinPortfolio'
+// psql 'GodwinPortfolio'
+// \l
+// \d
+// CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text, projectlink VARCHAR, githubname VARCHAR);
+// CREATE TABLE skills (id serial primary key,skill VARCHAR);
+// CREATE TABLE messages (id serial primary key, name text, email varchar, phone Varchar, companyname VARCHAR, subject varchar, message varchar);
+// CREATE TABLE register (id serial primary key,name  VARCHAR, email  VARCHAR,maidenname  VARCHAR,password  VARCHAR);
+// CREATE TABLE login (loginStatus  boolean);
+// insert into login (loginstatus) values(false);
+// CREATE TABLE schools (id serial primary key,honor  VARCHAR,school  VARCHAR, course  VARCHAR,courselink  VARCHAR,graduationyear  text);
+// CREATE TABLE trainings (id serial primary key,course  VARCHAR, company  VARCHAR,companywebsite  VARCHAR,certificate  VARCHAR,year  text);
+// CREATE TABLE hobbies (id serial primary key,hobby VARCHAR);
+// CREATE TABLE profiles (id serial primary key,profile text);
 
-app.get('/clothings',(req,res)=>{//Get clothings
-  return  db.select('*').from('clothings')
-    .then(data=>{     
-    res.json(data);
+// PROJECT
+// Get Projects
+app.get('/projects',(req,res)=>{
+        return  db.select('*').from('projects')
+        .then(data=>{     
+         res.json(data);
+         })
 })
+
+app.delete('/projects/:id',(req,res)=>{
+        db.delete('*').from('projects')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("Project deleted");
+        })
+        .catch(err=>res.status(400).json('Project not deleted')) 
 })
 
+// Add Projects
+app.post('/projects',(req,res)=>{
+        const {projectTitle,projectDescription,gitHubLink,projectLink} = req.body;
+        db('projects').insert({  
+                projecttitle: projectTitle,                 
+                projectdescription: projectDescription,
+                githubname: gitHubLink,
+                projectlink: projectLink                
+        })
+        .then(data=>{     
+                return  res.json("Project added");
+        })  
+        .catch(err=>res.status(400).json('Project not added'))   
+ })
 
-app.post('/clothings',(req,res)=>{//Add Clothings
-        const {clothName,clothPicture,clothPrice} = req.body;
-        if(!clothName||!clothPicture||!clothPrice){
-                res.status(400).json('Enter all fields');
-                return;
+ // Education
+// Get Schools
+app.get('/schools',(req,res)=>{
+        return  db.select('*').from('schools')
+        .then(data=>{     
+         res.json(data);
+         })
+})
+// Delete school
+app.delete('/schools/:id',(req,res)=>{
+        db.delete('*').from('schools')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("School deleted");
+        })
+        .catch(err=>res.status(400).json('School not deleted')) 
+})
+
+// Add schools
+app.post('/schools',(req,res)=>{
+        const {honor,school,course,courseLink,graduationYear} = req.body;
+        db('schools').insert({  
+                honor: honor,
+                school:school,                 
+                course: course,
+                courselink: courseLink,
+                graduationyear: graduationYear               
+        })
+        .then(data=>{     
+                return  res.json("School added");
+        })  
+        .catch(err=>res.status(400).json('School not added'))   
+ })
+
+ 
+// Get Trainigs
+app.get('/trainings',(req,res)=>{
+        return  db.select('*').from('trainings')
+        .then(data=>{     
+         res.json(data);
+         })
+})
+// Delete Training
+app.delete('/trainings/:id',(req,res)=>{
+        db.delete('*').from('trainings')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("Training deleted");
+        })
+        .catch(err=>res.status(400).json('Training not deleted')) 
+})
+
+// Add training
+app.post('/trainings',(req,res)=>{
+        const {tCourse,tCompany,tCompanyWebsite,certificate,tYear} = req.body;
+        db('trainings').insert({  
+               course: tCourse,
+                company:tCompany, 
+                companywebsite:tCompanyWebsite,                 
+                certificate: certificate,
+                year: tYear              
+        })
+        .then(data=>{     
+                return  res.json("Training added");
+        })  
+        .catch(err=>res.status(400).json('Training not added'))   
+ })
+// SKILL
+// Get Skills
+app.get('/skills',(req,res)=>{
+        return  db.select('*').from('skills')
+        .then(data=>{     
+          res.json(data);
+        })
+})
+
+// Delete Skill
+app.delete('/skills/:id',(req,res)=>{
+        db.delete('*').from('skills')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("Skill deleted");
+        })
+        .catch(err=>res.status(400).json('Skill not deleted')) 
+})
+//  Add Skills
+app.post('/skills',(req,res)=>{
+        const skill = req.body;
+       if(!skill){
+               res.status(400).json('Skill not recieved');
+               return;
         }
-                db('clothings').insert({  
-                                clopthpicture: clothPicture,                 
-                                clothname: clothName,
-                                clothprice: clothPrice                
-                            })
-                            return "Saved"
-                    })
-
-    app.get('/userx',(req,res)=>{//Get users
-                return  db.select('*').from('userx')
-                .then(user=>{    
-                res.json(user);
-            })
+       db('skills').insert(skill)
+       .then(skillx=>{
+               return   res.json('Skill added')
+       })
+       .catch(err=>res.status(400).json('Skill not added'))
 })
 
-app.post('/login',(req,res)=>{//login user
-    const {email,password} = req.body;
-        if(!email||!password){
-                res.status(400).json('Incorrect Password')
-        }
-        const hash=bcrypt.hashSync(password);//Hashing password here
-
-        db.select('password').from('userx')
-		.where({email:email})
-		.then(password=>{       
-			if(password==hash){
-              return  db.select('*').from('userx')
-                .where({email:email}).then(
-                    user=>{
-                            res.json(user[0])
-                    }
-                )				
-            }else{
-						res.status(400).json('Not found')
-				}
-		}).catch(err=>res.status(400).json('erro getting user'))
-	})
-
-app.post('/userx',(req,res)=>{//Add user
-        const {firstName,lastName,email,address,phone,password} = req.body;
-        if(!firstName||!lastName||!email||!phone||!address||!password){
-                res.status(400).json('Enter complete fields')
-        }
-        const hash=bcrypt.hashSync(password);//Hashing password here
-         db('userx').insert({  
-                            address: address,                                            
-                            email: email,
-                            firstname: firstName,
-                            lastname: lastName,                          
-                            password:hash,
-                            phone:phone,
-                    })
-                    .then(user=>{
-                        res.json(user[0]);
-}) })
-
-
-app.get('/userx/:id',(req,res)=>{//using Id to fetch user
-	return	db.select('*').from('userx')
-		.where({id:req.params.id})
-		.then(user=>{
-			if(user.length){
-			res.json(user[0])
-				}else{
-						res.status(400).json('Not found')
-				}
-		}).catch(err=>res.status(400).json('erro getting user'))
+//PUBLIC MESSAGE
+// Get Public Message
+app.get('/pmessages',(req,res)=>{
+        return  db.select('*').from('pmessages')
+        .then(data=>{     
+          res.json(data);
+        })
 })
 
-const DATABASE_URL = process.env.DATABASE_URL
-app.listen(DATABASE_URL||3001,function(){
-console.log(`Sever running at port: ${DATABASE_URL}`);
-});
+// Delete public message
+app.delete('/pmessages/:id',(req,res)=>{
+        db.delete('*').from('pmessages')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("Message deleted");
+        })
+        .catch(err=>res.status(400).json('Message not deleted')) 
+})
+//  Add public message
+app.post('/pmessages',(req,res)=>{
+        const pmessage = req.body;
+       if(!pmessage){
+               res.status(400).json('Message not recieved');
+               return;
+        }
+       db('pmessages').insert(pmessage)
+       .then(message=>{
+               return   res.json('Message added')
+       })
+       .catch(err=>res.status(400).json('Message not added'))
+})
+
+// PROFILE
+// Get Profile
+app.get('/profiles',(req,res)=>{
+        return  db.select('*').from('profiles')
+        .then(data=>{     
+          res.json(data);
+        })
+})
+
+// Delete Profile
+app.delete('/profiles/:id',(req,res)=>{
+        db.delete('*').from('profiles')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("profile deleted");
+        })
+        .catch(err=>res.status(400).json('profile not deleted')) 
+})
+//  Add Profile
+app.post('/profiles',(req,res)=>{
+        const profile= req.body;
+       if(!profile){
+               res.status(400).json('Profile not recieved');
+               return;
+        }
+       db('profiles').insert(profile)
+       .then(profile=>{
+               return   res.json('Profile added')
+       })
+       .catch(err=>res.status(400).json('Profile added'))
+})
+
+// Update Profile
+app.put('/profiles',(req,res)=>{//Add Clothings
+        const profile = req.body;
+        db('profiles').update(profile)
+        .then(profile=>{
+                return   res.json('Profile updated')
+        }) 
+})
+
+
+
+// HOBBY
+// Get Hobbies
+app.get('/Hobbies',(req,res)=>{
+        return  db.select('*').from('hobbies')
+        .then(data=>{     
+          res.json(data);
+        })
+})
+
+// Delete Skill
+app.delete('/hobbies/:id',(req,res)=>{
+        db.delete('*').from('hobbies')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("Hobby deleted");
+        })
+        .catch(err=>res.status(400).json('Hobby not deleted')) 
+})
+//  Add Skills
+app.post('/hobbies',(req,res)=>{
+        const hobby = req.body;
+       if(!hobby){
+               res.status(400).json('Hobby not recieved');
+               return;
+        }
+       db('hobbies').insert(hobby)
+       .then(hobby=>{
+               return   res.json('Hobby added')
+       })
+       .catch(err=>res.status(400).json('Hobby added'))
+})
+
+// PHONE
+// Get Phonenumbers
+app.get('/phone',(req,res)=>{
+        return  db.select('*').from('phone')
+        .then(data=>{     
+          res.json(data);
+        })
+})
+
+// Delete Phone
+app.delete('/phone/:id',(req,res)=>{
+        db.delete('*').from('phone')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("Phone deleted");
+        })
+        .catch(err=>res.status(400).json('Phone not deleted')) 
+})
+
+// Add Phonenumber
+app.post('/phone',(req,res)=>{
+        const phone = req.body;
+       if(!phone){
+               res.status(400).json('Phone number not received');
+               return;
+       }
+       db('phone').insert(phone)
+       .then(phone=>{
+              return res.json('Phone number added')
+       })
+       .catch(err=>res.status(400).json('Phone number not added'))  
+})
+
+
+// MESSSAGE
+// Get Received Messages
+ app.get('/messages',(req,res)=>{
+        return  db.select('*').from('messages')
+        .then(data=>{     
+          res.json(data);
+        })
+})
+
+// Delete Message
+app.delete('/messages/:id',(req,res)=>{
+        db.delete('*').from('messages')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("Message deleted");
+        })
+        .catch(err=>res.status(400).json('Message not deleted')) 
+})
+
+app.get('/messages/:id',(req,res)=>{
+      return  db.select('*').from('messages')
+        .where({id:req.params.id})
+        .then(data=>{     
+          res.json("Item gotten");
+        })
+        .catch(err=>res.status(400).json('Can not get item')) 
+})
+
+// Recieve a message
+ app.post('/messages',(req,res)=>{//Add Clothings
+        const {name,email,phone,companyName,subject,message} = req.body;
+        db('messages').insert({  
+                name: name,                 
+                email: email,
+                phone:phone,
+                companyname:companyName,
+                subject:subject,
+                message: message                
+        })
+        .then(messages=>{
+                return   res.json('Message sent')
+        }) 
+})
+
+
+// LOGIN
+// Admin Login
+app.put('/login',(req,res)=>{                           
+        const loginStatus = req.body;
+        db('login').update({  
+                loginstatus:!loginStatus                               
+        })
+        .then(data=>{
+                return   res.json('logged in')
+        }) 
+})  
+
+app.get('/login',(req,res)=>{
+        return  db.select('*').from('login')
+        .then(data=>{     
+          res.json(data);
+        })
+})
+
+
+app.get('/register',(req,res)=>{//Add Clothings
+        return  db.select('*').from('register')
+        .then(data=>{     
+          res.json(data);
+        }) 
+})
+
+app.post('/register',(req,res)=>{//Add Clothings
+        const {name, email, maidenName, hash} = req.body;
+        db('register').insert({  
+                name: name,                 
+                email: email,
+                maidenname : maidenName,
+                password : hash              
+        })
+        .then(messages=>{
+                return   res.json('Registered')
+        }) 
+})
+
+app.put('/register',(req,res)=>{//Add Clothings
+        const {email, maidenName,password} = req.body;
+        // const hash=bcrypt.hashSync(password);//Hashing password here
+        db('register').update({  
+                password : password})
+                .where({email:email,maidenname:maidenName})
+        .then(messages=>{
+                return   res.json('Admin updated')
+        }) 
+})
+
+
+// const DATABASE_URL = process.env.DATABASE_URL
+// app.listen(DATABASE_URL||3003,function(){
+// console.log(`Sever running at port: ${DATABASE_URL}`);
+// });
+
+app.listen(3002,function(){
+        console.log('Sever running at port:3002');
+ });
+       
