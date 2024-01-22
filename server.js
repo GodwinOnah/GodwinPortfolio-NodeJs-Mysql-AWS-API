@@ -2,12 +2,12 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import knex from 'knex';
-import bcrypt from 'bcryptjs-react';
-
-
+import multer from 'multer';
+import path from 'path';
 
 const app = express();
 app.use(cors());
+app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
@@ -124,13 +124,25 @@ app.delete('/trainings/:id',(req,res)=>{
 })
 
 // Add training
-app.post('/trainings',(req,res)=>{
-        const {tCourse,tCompany,tCompanyWebsite,certificate,tYear} = req.body;
+const storageTraining = multer.diskStorage({
+        destination:(req,file,cd)=>{
+                cd(null,'public/certificates')
+        },
+        filename:(req,file,cd)=>{
+                cd(null, file.originalname)
+        }
+})
+
+const uploadTraining = multer({storage:storageTraining});
+
+app.post('/trainings',uploadTraining.single('file'),(req,res)=>{
+        const certificateFileName = req.file.filename;   
+        const {tCourse,tCompany,tCompanyWebsite,tYear} = req.body;
         db('trainings').insert({  
-               course: tCourse,
+                course: tCourse,
                 company:tCompany, 
                 companywebsite:tCompanyWebsite,                 
-                certificate: certificate,
+                certificate: certificateFileName,
                 year: tYear              
         })
         .then(data=>{     
@@ -138,6 +150,8 @@ app.post('/trainings',(req,res)=>{
         })  
         .catch(err=>res.status(400).json('Training not added'))   
  })
+
+
 // SKILL
 // Get Skills
 app.get('/skills',(req,res)=>{
@@ -188,6 +202,7 @@ app.delete('/pmessages/:id',(req,res)=>{
         })
         .catch(err=>res.status(400).json('Message not deleted')) 
 })
+
 //  Add public message
 app.post('/pmessages',(req,res)=>{
         const pmessage = req.body;
@@ -242,8 +257,6 @@ app.put('/profiles',(req,res)=>{//Add Clothings
                 return   res.json('Profile updated')
         }) 
 })
-
-
 
 // HOBBY
 // Get Hobbies
@@ -397,13 +410,42 @@ app.post('/register',(req,res)=>{//Add Clothings
 })
 
 app.put('/register',(req,res)=>{//Add Clothings
-        const {email, maidenName,password} = req.body;
-        // const hash=bcrypt.hashSync(password);//Hashing password here
+        const {id,email, maidenName,hash} = req.body;
         db('register').update({  
-                password : password})
-                .where({email:email,maidenname:maidenName})
+                password : hash})
+                .where({id:id,email:email,maidenname:maidenName})
         .then(messages=>{
                 return   res.json('Admin updated')
+        }) 
+})
+
+// Get photo
+app.get('/photos',(req,res)=>{     
+        return  db.select('*').from('photos')
+        .then(data=>{   
+          res.json(data);
+        }) 
+})
+
+
+//Add Photo
+const storagePhotos = multer.diskStorage({
+        destination:(req,file,cd)=>{
+                cd(null,'public/photo_images')
+        },
+        filename:(req,file,cd)=>{
+                cd(null, file.fieldname + '_' + 
+                Date.now() + path.extname(file.originalname))
+        }
+})
+
+const upload = multer({storage:storagePhotos});
+
+app.post('/photos',upload.single('photo'),(req,res)=>{
+        const photo = req.file.filename;   
+        db('photos').insert({photo:photo})
+        .then(photo=>{
+                return   res.json('Photo added')
         }) 
 })
 
