@@ -524,12 +524,12 @@ app.delete('/photos/:id',(req,res)=>{
 })
 
 
-// const DATABASE_URL = process.env.DATABASE_URL
-// app.listen(DATABASE_URL||3003,function(){
-// console.log(`Sever running at port: ${DATABASE_URL}`);
-// });
+const PORT = process.env.PORT
+app.listen(PROT||3003,function(){
+console.log(`Sever running at port: ${PORT}`);
+});
 
-app.listen(3002,function(){
-        console.log('Sever running at port:3002');
- });
+// app.listen(3002,function(){
+//         console.log('Sever running at port:3002');
+//  });
        
