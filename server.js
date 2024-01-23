@@ -2,8 +2,10 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import knex from 'knex';
+import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
+import { fstat } from 'fs';
 
 const app = express();
 app.use(cors());
@@ -27,11 +29,14 @@ const db = knex({
 // psql 'GodwinPortfolio'
 // \l
 // \d
-// CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text, projectlink VARCHAR, githubname VARCHAR);
+// CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR);
 // CREATE TABLE skills (id serial primary key,skill VARCHAR);
+// CREATE TABLE cvs (id serial primary key,cv VARCHAR);
+// CREATE TABLE photos (id serial primary key,photo VARCHAR);
 // CREATE TABLE messages (id serial primary key, name text, email varchar, phone Varchar, companyname VARCHAR, subject varchar, message varchar);
 // CREATE TABLE register (id serial primary key,name  VARCHAR, email  VARCHAR,maidenname  VARCHAR,password  VARCHAR);
 // CREATE TABLE login (loginStatus  boolean);
+// CREATE TABLE cvs (id serial primary key,cv VARCHAR);
 // insert into login (loginstatus) values(false);
 // CREATE TABLE schools (id serial primary key,honor  VARCHAR,school  VARCHAR, course  VARCHAR,courselink  VARCHAR,graduationyear  text);
 // CREATE TABLE trainings (id serial primary key,course  VARCHAR, company  VARCHAR,companywebsite  VARCHAR,certificate  VARCHAR,year  text);
@@ -58,10 +63,11 @@ app.delete('/projects/:id',(req,res)=>{
 
 // Add Projects
 app.post('/projects',(req,res)=>{
-        const {projectTitle,projectDescription,gitHubLink,projectLink} = req.body;
+        const {projectTitle,projectDescription,videoLink,gitHubLink,projectLink} = req.body;
         db('projects').insert({  
                 projecttitle: projectTitle,                 
                 projectdescription: projectDescription,
+                videolink:videoLink,
                 githubname: gitHubLink,
                 projectlink: projectLink                
         })
@@ -115,6 +121,12 @@ app.get('/trainings',(req,res)=>{
 })
 // Delete Training
 app.delete('/trainings/:id',(req,res)=>{
+        db.select('certificate').from('trainings')
+        .where({id:req.params.id})
+        .then(data=>{   
+        fs.unlinkSync(`public/certificates/${data[0].certificate}`) //deleting file from folder
+        }) 
+
         db.delete('*').from('trainings')
         .where({id:req.params.id})
         .then(data=>{     
@@ -129,7 +141,7 @@ const storageTraining = multer.diskStorage({
                 cd(null,'public/certificates')
         },
         filename:(req,file,cd)=>{
-                cd(null, file.originalname)
+                cd(null, `${Date.now()}_${file.originalname}`)
         }
 })
 
@@ -250,7 +262,7 @@ app.post('/profiles',(req,res)=>{
 })
 
 // Update Profile
-app.put('/profiles',(req,res)=>{//Add Clothings
+app.put('/profiles',(req,res)=>{
         const profile = req.body;
         db('profiles').update(profile)
         .then(profile=>{
@@ -381,6 +393,7 @@ app.put('/login',(req,res)=>{
         }) 
 })  
 
+//Get Login
 app.get('/login',(req,res)=>{
         return  db.select('*').from('login')
         .then(data=>{     
@@ -388,15 +401,16 @@ app.get('/login',(req,res)=>{
         })
 })
 
-
-app.get('/register',(req,res)=>{//Add Clothings
+//Get register
+app.get('/register',(req,res)=>{
         return  db.select('*').from('register')
         .then(data=>{     
           res.json(data);
         }) 
 })
 
-app.post('/register',(req,res)=>{//Add Clothings
+//Add register
+app.post('/register',(req,res)=>{
         const {name, email, maidenName, hash} = req.body;
         db('register').insert({  
                 name: name,                 
@@ -409,7 +423,8 @@ app.post('/register',(req,res)=>{//Add Clothings
         }) 
 })
 
-app.put('/register',(req,res)=>{//Add Clothings
+//Update register
+app.put('/register',(req,res)=>{
         const {id,email, maidenName,hash} = req.body;
         db('register').update({  
                 password : hash})
@@ -419,6 +434,50 @@ app.put('/register',(req,res)=>{//Add Clothings
         }) 
 })
 
+// Get Cv
+app.get('/cvs',(req,res)=>{     
+        return  db.select('*').from('cvs')
+        .then(data=>{   
+          res.json(data);
+        }) 
+})
+
+//Add CV
+const storageCv = multer.diskStorage({
+        destination:(req,file,cd)=>{
+                cd(null,'public/CV_images')
+        },
+        filename:(req,file,cd)=>{
+                cd(null, `${Date.now()}_${file.originalname}`)
+        }
+})
+
+const uploadCv = multer({storage:storageCv});
+
+app.post('/cvs',uploadCv.single('cv'),(req,res)=>{
+        const cv = req.file.filename;   
+        db('cvs').insert({cv:cv})
+        .then(photo=>{
+                return   res.json('CV uploaded')
+        }) 
+})
+
+// Delete CV
+app.delete('/cvs/:id',(req,res)=>{
+        db.select('cv').from('cvs')
+        .where({id:req.params.id})
+        .then(data=>{  
+        fs.unlinkSync(`public/CV_images/${data[0].cv}`) //deleting file from folder
+        }) 
+
+        db.delete('*').from('cvs')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("CV deleted");
+        })
+        .catch(err=>res.status(400).json('CV not deleted')) 
+})
+
 // Get photo
 app.get('/photos',(req,res)=>{     
         return  db.select('*').from('photos')
@@ -426,7 +485,6 @@ app.get('/photos',(req,res)=>{
           res.json(data);
         }) 
 })
-
 
 //Add Photo
 const storagePhotos = multer.diskStorage({
@@ -447,6 +505,22 @@ app.post('/photos',upload.single('photo'),(req,res)=>{
         .then(photo=>{
                 return   res.json('Photo added')
         }) 
+})
+
+// Delete Photo
+app.delete('/photos/:id',(req,res)=>{
+        db.select('photo').from('photos')
+        .where({id:req.params.id})
+        .then(data=>{ 
+        fs.unlinkSync(`public/photo_images/${data[0].photo}`) //deleting file from folder
+        }) 
+
+        db.delete('*').from('photos')
+        .where({id:req.params.id})
+        .then(data=>{     
+                return res.json("Photo deleted");
+        })
+        .catch(err=>res.status(400).json('Photo not deleted')) 
 })
 
 
