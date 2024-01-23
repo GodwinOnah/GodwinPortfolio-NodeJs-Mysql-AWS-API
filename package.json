@@ -11,9 +11,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "nodemon": "^3.0.3"
-  },
   "dependencies": {
     "bcrypt-nodejs": "^0.0.3",
     "bcryptjs-react": "^2.4.6",
