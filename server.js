@@ -525,11 +525,9 @@ app.delete('/photos/:id',(req,res)=>{
 
 
 const PORT = process.env.PORT
-app.listen(PROT||3003,function(){
+app.listen(PORT||3003,function(){
 console.log(`Sever running at port: ${PORT}`);
 });
 
-// app.listen(3002,function(){
-//         console.log('Sever running at port:3002');
-//  });
+
        
