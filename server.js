@@ -20,10 +20,8 @@ app.use(bodyParser.json());
 const db = knex({    
         client: 'pg',
         connection:{
-        host :'127.0.0.1',
-        user:'godwinonah',
-        password:'',
-        database:'GodwinPortfolio'
+        connectionString:process.env.DATABASE_URL,
+        ssl:true
         }
 });
 // brew start psql
@@ -33,7 +31,7 @@ const db = knex({
 // \d
 // CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR);
 // CREATE TABLE skills (id serial primary key,skill VARCHAR);
-// CREATE TABLE cvs (id serial primary key,cv VARCHAR);
+// CREATE TABLE phone (id serial primary key,phone VARCHAR);
 // CREATE TABLE photos (id serial primary key,photo VARCHAR);
 // CREATE TABLE messages (id serial primary key, name text, email varchar, phone Varchar, companyname VARCHAR, subject varchar, message varchar);
 // CREATE TABLE register (id serial primary key,name  VARCHAR, email  VARCHAR,maidenname  VARCHAR,password  VARCHAR);
@@ -606,9 +604,9 @@ app.delete('/photos/:id',(req,res)=>{
 })
 
 
-const PORT = process.env.PORT
-app.listen(PORT||3003,function(){
-console.log(`Sever running at port: ${PORT}`);
+const DATABASE_URL = process.env.DATABASE_URL
+app.listen(DATABASE_URL||3002,function(){
+console.log(`Sever running at port: ${DATABASE_URL}`);
 });
 
 
