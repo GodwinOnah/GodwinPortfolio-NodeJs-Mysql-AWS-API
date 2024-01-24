@@ -22,7 +22,7 @@ const db = knex({
         connection:{
         connectionString:process.env.DATABASE_URL,
         ssl:true
-        }
+     }
 });
 // brew start psql
 // createdb 'GodwinPortfolio'
