@@ -5,7 +5,8 @@ import knex from 'knex';
 import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
-import { fstat } from 'fs';
+import nodeMailer from 'nodemailer';
+import {} from 'dotenv/config'
 
 const app = express();
 app.use(cors());
@@ -13,6 +14,7 @@ app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
+//  const [counter,setCounter] = useState(0)
 
 //connecting to database using knex
 const db = knex({    
@@ -401,9 +403,29 @@ app.get('/login',(req,res)=>{
         })
 })
 
+//Get Login
+app.post('/login',(req,res)=>{
+        const {email,hash} = req.body;
+        db.select('password').from('register')
+        .where({email:email})
+        .then(password=>{       
+                if(password==hash){
+      return  db.select('*').from('register')
+        .where({email:email}).then(
+            user=>{
+                    res.json(user[0])
+            }
+        )				
+    }else{
+        res.status(400).json('Not found')
+                        }
+        }).catch(err=>res.status(400).json('erro getting user'))
+})
+
+
 //Get register
 app.get('/register',(req,res)=>{
-        return  db.select('*').from('register')
+        return  db.select('email','password').from('register')
         .then(data=>{     
           res.json(data);
         }) 
@@ -423,16 +445,76 @@ app.post('/register',(req,res)=>{
         }) 
 })
 
-//Update register
+//Update user
 app.put('/register',(req,res)=>{
-        const {id,email, maidenName,hash} = req.body;
-        db('register').update({  
+
+        const {id,email, maidenName,hash} = req.body;        
+
+        db.select('maidenname').from('register')
+        .where({email:email})
+        .then(maidenNamex=>{          
+            if(maidenNamex[0].maidenname==maidenName){
+                db('register').update({  
                 password : hash})
                 .where({id:id,email:email,maidenname:maidenName})
-        .then(messages=>{
-                return   res.json('Admin updated')
-        }) 
-})
+                .then(data=>{     
+                return res.json("Admin password updated");
+                 })
+                }
+            else{ 
+                        db.select('email','maidenname').from('register')
+                        .where({email:email})
+                        .then(data=>{ 
+                                const messageTemplate = 
+                                        `<h1>Password Recovery</h1>
+                                        <p>Your recovery datails are:
+                                        <br/>
+                                        <br/>Email: ${data[0].email},
+                                        <br/>Maiden Name: ${data[0].maidenname}.
+                                        <br/>
+                                        <br/>
+                                        Thanks.
+                                        </p>
+                                        `;
+
+                        const transporter = nodeMailer.createTransport({
+                               
+                                service:'gmail',
+                                host:'smtp.gmail.com',
+                                port:465,
+                                secure:true,
+                                auth:{
+                                        user: process.env.REACT_APP_USER,
+                                        pass: process.env.REACT_APP_PASSWORD
+                                }
+                        })
+
+                        const info = transporter.sendMail({
+                               from: {
+                               name: 'Godwin',
+                               address: process.env.REACT_APP_USER
+                         },
+                               to: process.env.REACT_APP_USER,
+                               subject:'Password Recovery',
+                               html:messageTemplate
+                        })
+                        const sendMail = async (transporter, info) =>{
+                                try{
+                                        await transporter.sendMail(info);
+                                        res.json("Login Details sent your your email")
+                                }
+                                catch(error){
+                                res.json("Check your email or make sure your network connection is good")
+                                }
+                        }
+        
+                        sendMail(transporter,info);
+                        })
+                        .catch(err=>res.status(400).json('You are not the admin'))
+                }
+                }).catch(err=>res.status(400).json('erro getting user'))   			  
+    }    
+)
 
 // Get Cv
 app.get('/cvs',(req,res)=>{     
@@ -524,10 +606,14 @@ app.delete('/photos/:id',(req,res)=>{
 })
 
 
-const PORT = process.env.PORT
-app.listen(PORT||3003,function(){
-console.log(`Sever running at port: ${PORT}`);
-});
+// const PORT = process.env.PORT
+// app.listen(PORT||3003,function(){
+// console.log(`Sever running at port: ${PORT}`);
+// });
 
+
+app.listen(3002,function(){
+console.log('Sever running at port: 3002');
+});
 
        
