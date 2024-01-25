@@ -8,13 +8,12 @@ import path from 'path';
 import nodeMailer from 'nodemailer';
 import {} from 'dotenv/config'
 
+
 const app = express();
 app.use(cors());
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
-var distDir = __dirname + "/dist/";
- app.use(express.static(distDir));
 
 
 //connecting to database using knex
@@ -22,7 +21,7 @@ const db = knex({
         client: 'pg',
         connection:{
         connectionString: process.env.DATABASE_URL,
-        ssl:true,
+        ssl:{ rejectUnauthorized: false },
      }
 });
 // brew start psql
@@ -32,13 +31,12 @@ const db = knex({
 // \d
 // CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR);
 // CREATE TABLE skills (id serial primary key,skill VARCHAR);
+// CREATE TABLE pmessages (id serial primary key,pmessage VARCHAR);
 // CREATE TABLE phone (id serial primary key,phone VARCHAR);
 // CREATE TABLE photos (id serial primary key,photo VARCHAR);
 // CREATE TABLE messages (id serial primary key, name text, email varchar, phone Varchar, companyname VARCHAR, subject varchar, message varchar);
 // CREATE TABLE register (id serial primary key,name  VARCHAR, email  VARCHAR,maidenname  VARCHAR,password  VARCHAR);
-// CREATE TABLE login (loginStatus  boolean);
 // CREATE TABLE cvs (id serial primary key,cv VARCHAR);
-// insert into login (loginstatus) values(false);
 // CREATE TABLE schools (id serial primary key,honor  VARCHAR,school  VARCHAR, course  VARCHAR,courselink  VARCHAR,graduationyear  text);
 // CREATE TABLE trainings (id serial primary key,course  VARCHAR, company  VARCHAR,companywebsite  VARCHAR,certificate  VARCHAR,year  text);
 // CREATE TABLE hobbies (id serial primary key,hobby VARCHAR);
@@ -85,6 +83,7 @@ app.get('/schools',(req,res)=>{
         .then(data=>{     
          res.json(data);
          })
+         .catch(err=>res.status(400).json('No SChool added by this time')) 
 })
 // Delete school
 app.delete('/schools/:id',(req,res)=>{
@@ -119,6 +118,7 @@ app.get('/trainings',(req,res)=>{
         .then(data=>{     
          res.json(data);
          })
+         .catch(err=>res.status(400).json('No Trainning added by this time')) 
 })
 // Delete Training
 app.delete('/trainings/:id',(req,res)=>{
@@ -133,7 +133,7 @@ app.delete('/trainings/:id',(req,res)=>{
         .then(data=>{     
                 return res.json("Training deleted");
         })
-        .catch(err=>res.status(400).json('Training not deleted')) 
+        .catch(err=>res.status(400).json('Trainning not deleted')) 
 })
 
 // Add training
@@ -172,6 +172,7 @@ app.get('/skills',(req,res)=>{
         .then(data=>{     
           res.json(data);
         })
+        .catch(err=>res.status(400).json('No skill added by this time')) 
 })
 
 // Delete Skill
@@ -204,6 +205,7 @@ app.get('/pmessages',(req,res)=>{
         .then(data=>{     
           res.json(data);
         })
+        .catch(err=>res.status(400).json('No alert/notification message added by this time')) 
 })
 
 // Delete public message
@@ -237,6 +239,7 @@ app.get('/profiles',(req,res)=>{
         .then(data=>{     
           res.json(data);
         })
+        .catch(err=>res.status(400).json('No profile summary added by this time')) 
 })
 
 // Delete Profile
@@ -269,6 +272,7 @@ app.put('/profiles',(req,res)=>{
         .then(profile=>{
                 return   res.json('Profile updated')
         }) 
+        .catch(err=>res.status(400).json('Not added')) 
 })
 
 // HOBBY
@@ -278,6 +282,7 @@ app.get('/Hobbies',(req,res)=>{
         .then(data=>{     
           res.json(data);
         })
+        .catch(err=>res.status(400).json('No hobby added by this time')) 
 })
 
 // Delete Skill
@@ -310,6 +315,7 @@ app.get('/phone',(req,res)=>{
         .then(data=>{     
           res.json(data);
         })
+        .catch(err=>res.status(400).json('No phone number added by this time')) 
 })
 
 // Delete Phone
@@ -344,6 +350,7 @@ app.post('/phone',(req,res)=>{
         .then(data=>{     
           res.json(data);
         })
+        .catch(err=>res.status(400).json('No message received added by this time')) 
 })
 
 // Delete Message
@@ -384,24 +391,6 @@ app.get('/messages/:id',(req,res)=>{
 
 // LOGIN
 // Admin Login
-app.put('/login',(req,res)=>{                           
-        const loginStatus = req.body;
-        db('login').update({  
-                loginstatus:!loginStatus                               
-        })
-        .then(data=>{
-                return   res.json('logged in')
-        }) 
-})  
-
-//Get Login
-app.get('/login',(req,res)=>{
-        return  db.select('*').from('login')
-        .then(data=>{     
-          res.json(data);
-        })
-})
-
 //Get Login
 app.post('/login',(req,res)=>{
         const {email,hash} = req.body;
@@ -428,6 +417,7 @@ app.get('/register',(req,res)=>{
         .then(data=>{     
           res.json(data);
         }) 
+        .catch(err=>res.status(400).json('No admin registered added by this time')) 
 })
 
 //Add register
@@ -447,7 +437,7 @@ app.post('/register',(req,res)=>{
 //Update user
 app.put('/register',(req,res)=>{
 
-        const {id,email, maidenName,hash} = req.body;        
+        const {email, maidenName,hash} = req.body;        
 
         db.select('maidenname').from('register')
         .where({email:email})
@@ -455,9 +445,14 @@ app.put('/register',(req,res)=>{
             if(maidenNamex[0].maidenname==maidenName){
                 db('register').update({  
                 password : hash})
-                .where({id:id,email:email,maidenname:maidenName})
+                .where({email:email,maidenname:maidenName})
                 .then(data=>{     
-                return res.json("Admin password updated");
+                        if(data){
+                                return res.json('Admin password updated');
+                        } 
+                        else{
+                                return  res.json('Admin password not updated');
+                        }        
                  })
                 }
             else{ 
@@ -520,7 +515,8 @@ app.get('/cvs',(req,res)=>{
         return  db.select('*').from('cvs')
         .then(data=>{   
           res.json(data);
-        }) 
+        })
+        .catch(err=>res.status(400).json('No CV added by this time'))  
 })
 
 //Add CV
@@ -565,6 +561,7 @@ app.get('/photos',(req,res)=>{
         .then(data=>{   
           res.json(data);
         }) 
+        .catch(err=>res.status(400).json('No Photo added by this time')) 
 })
 
 //Add Photo
