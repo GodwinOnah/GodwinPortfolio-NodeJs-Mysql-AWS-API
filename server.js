@@ -13,6 +13,8 @@ app.use(cors());
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
+var distDir = __dirname + "/dist/";
+ app.use(express.static(distDir));
 
 
 //connecting to database using knex
