@@ -14,14 +14,13 @@ app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
-//  const [counter,setCounter] = useState(0)
 
 //connecting to database using knex
 const db = knex({    
         client: 'pg',
         connection:{
-        connectionString:process.env.DATABASE_URL,
-        ssl:true
+        connectionString: process.env.DATABASE_URL,
+        ssl:true,
      }
 });
 // brew start psql
