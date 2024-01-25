@@ -205,7 +205,7 @@ app.get('/pmessages',(req,res)=>{
         .then(data=>{     
           res.json(data);
         })
-        .catch(err=>res.status(400).json('No alert/notification message added by this time')) 
+        .catch(err=>res.status(400).json('No alerts/notifications message added by this time')) 
 })
 
 // Delete public message
