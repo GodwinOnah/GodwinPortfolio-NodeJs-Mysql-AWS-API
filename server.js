@@ -163,38 +163,35 @@ app.get('/trainings', (req, res) => {
         .catch(err => res.status(400).json('No Trainning added by this time'))
 })
 // Delete Training
-app.delete('/trainings/:id', (req, res) => {
-
-    db
-        .delete('*')
-        .from('trainings')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Training deleted");
-        })
-        .catch(err => res.status(400).json('Trainning not deleted'))
-        
+app.delete('/trainings/:id', (req, res) => {      
         db.select('certificate')
         .from('trainings')
         .where({id: req.params.id})
         .then(data => {
+                db
+                .delete('*')
+                .from('trainings')
+                .where({certificate: data[0].certificate})
+                .then(data => {
+                    return res.json("Training deleted");
+                })
+                .catch(err => res.status(400).json('Trainning not deleted'))
             fs.unlinkSync(`public/certificates/${data[0].certificate}`) //deleting file from folder
         })
 })
 
 // Delete all Trainings
-app.delete('/trainings/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('trainings')
-        .then(data => {
-            return res.json("All Trainings deleted");
-        })
-        .catch(err => res.status(400).json('All Trainnings not deleted'))
+app.delete('/trainings/:id', (req, res) => {      
         db
         .select('certificate')
         .from('trainings')
         .then(data => {
+                db.delete('*')
+                .from('trainings')
+                .then(data => {
+                    return res.json("All Trainings deleted");
+                })
+                .catch(err => res.status(400).json('All Trainnings not deleted'))
             fs.unlinkSync(`public/certificates/${data}`) //deleting file from folder
         })
 })
@@ -701,19 +698,20 @@ app.post('/cvs', uploadCv.single('cv'), (req, res) => {
 
 // Delete CV
 app.delete('/cvs/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('cvs')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("CV deleted");
-        })
-        .catch(err => res.status(400).json('CV not deleted'))
+   
         db
         .select('cv')
         .from('cvs')
         .where({id: req.params.id})
         .then(data => {
+                db
+                .delete('*')
+                .from('cvs')
+                .where({cv: data[0].cv})
+                .then(data => {
+                    return res.json("CV deleted");
+                })
+                .catch(err => res.status(400).json('CV not deleted'))
             fs.unlinkSync(`public/CV_images/${data[0].cv}`) //deleting file from folder
         })
 })
@@ -739,9 +737,9 @@ const storagePhotos = multer.diskStorage({
     }
 })
 
-const upload = multer({storage: storagePhotos});
+const uploadPhotos = multer({storage: storagePhotos});
 
-app.post('/photos', upload.single('photo'), (req, res) => {
+app.post('/photos', uploadPhotos.single('photo'), (req, res) => {
     const photo = req.file.filename;
     db('photos')
         .insert({photo: photo})
@@ -752,36 +750,38 @@ app.post('/photos', upload.single('photo'), (req, res) => {
 
 // Delete Photo
 app.delete('/photos/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('photos')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Photo deleted");
-        })
-        .catch(err => res.status(400).json('Photo not deleted'))
+   
+       
         db
         .select('photo')
         .from('photos')
         .where({id: req.params.id})
         .then(data => {
+                db.delete('photo')
+                .from('photos')
+                .where({photo: data[0].photo})
+                .then(data => {
+                    return res.json("Photo deleted");
+                })
+                .catch(err => res.status(400).json('Photo not deleted'))
             fs.unlinkSync(`public/photo_images/${data[0].photo}`) //deleting file from folder
         })
 })
 
 // Delete all Photos
 app.delete('/photos', (req, res) => {
-    db
-        .delete('*')
-        .from('photos')
-        .then(data => {
-            return res.json("All Photos deleted");
-        })
-        .catch(err => res.status(400).json('All Photos not deleted'))
+   
         db
         .select('photo')
         .from('photos')
         .then(data => {
+                db
+                .delete('*')
+                .from('photos')
+                .then(data => {
+                    return res.json("All Photos deleted");
+                })
+                .catch(err => res.status(400).json('All Photos not deleted'))
             fs.unlinkSync(`public/photo_images/${data}`) //deleting file from folder
         })
 })
