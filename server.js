@@ -24,6 +24,19 @@ const db = knex({
         database:'Godwin'
     }
 });
+
+
+// const db = knex({
+//     client: 'pg',
+//     connection: {
+//         connectionString: process.env.DATABASE_URL,
+//         ssl: {
+//             rejectUnauthorized: false
+//         }
+//     }
+// });
+
+
 // brew start psql createdb 'GodwinPortfolio' psql 'GodwinPortfolio' \l \d
 // CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR); 
 // CREATE TABLE skills (id serial primary key,skill VARCHAR); 
