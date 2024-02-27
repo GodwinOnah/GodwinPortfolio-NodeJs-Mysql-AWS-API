@@ -533,7 +533,6 @@ app.post('/messages', (req, res) => { //Add Clothings
     const {
         name,
         email,
-        phone,
         companyName,
         subject,
         message
@@ -542,7 +541,6 @@ app.post('/messages', (req, res) => { //Add Clothings
         .insert({
         name: name,
         email: email,
-        phone: phone,
         companyname: companyName,
         subject: subject,
         message: message
