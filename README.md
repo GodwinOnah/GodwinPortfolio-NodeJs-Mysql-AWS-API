@@ -110,7 +110,7 @@ const db = knex({
 *  [Heroku](https://heroku.com) Heroku is a cloud platform as a service supporting several programming languages. As one of the first cloud platforms, Heroku has been in development since June 2007, when it supported only the Ruby programming language, but now also supports Java, Node.js, Scala, Clojure, Python, PHP, and Go.
 ### Authors
 * [Onah Godwin Obande](https://godwinportfolio.azurewebsites.net)
-* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Node-Server/blob/main/public/photo_images/godwin-onah.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/photo_images/godwin-onah.png?raw=true)
 ### Project Screenshots
 #### 1
 * ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage1.png?raw=true)
