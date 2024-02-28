@@ -85,24 +85,24 @@ const db = knex({
 ### Start PostgreSQL with brew
  Run brew start psql;
 ### Create PostgreSQL database
-  createdb '<name>';
+  createdb 'database_name';
    ### Connect to PostgreSQL database
-   psql '<name>';
+   psql 'database_name';
  ### Creating Tables
- *CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR); 
- *CREATE TABLE skills (id serial primary key,skill VARCHAR); 
- *CREATE TABLE underconstruction (id serial primary key, underconstruction boolean);
- INSERT INTO  underconstruction (underconstruction)values(false); 
- CREATE TABLE pmessages (id serial primary key,pmessage VARCHAR); 
- CREATE TABLE phone (id serial primary key,phone VARCHAR); 
- CREATE TABLE photos (id serial primary key,photo VARCHAR); 
- CREATE TABLE messages (id serial primary key, name text, email varchar, phone Varchar, companyname VARCHAR, subject varchar, message varchar); 
- CREATE TABLE register (id serial primary key,name  VARCHAR, email VARCHAR,maidenname  VARCHAR,password  VARCHAR); 
- CREATE TABLE cvs (id serial primary key,cv VARCHAR); 
- CREATE TABLE schools (id serial primary key,honor VARCHAR,school  VARCHAR, course  VARCHAR,courselink  VARCHAR,graduationyear text); 
- CREATE TABLE trainings (id serial primary key,course  VARCHAR, company  VARCHAR,companywebsite  VARCHAR,certificate  VARCHAR,year  text); 
- CREATE TABLE hobbies (id serial primary key,hobby VARCHAR); 
- CREATE TABLE profiles (id serial primary key,profile text); 
+ CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR);<br/> 
+ CREATE TABLE skills (id serial primary key,skill VARCHAR); <br/> 
+ CREATE TABLE underconstruction (id serial primary key, underconstruction boolean);<br/> 
+ INSERT INTO  underconstruction (underconstruction)values(false); <br/> 
+ CREATE TABLE pmessages (id serial primary key,pmessage VARCHAR); <br/> 
+ CREATE TABLE phone (id serial primary key,phone VARCHAR);<br/>  
+ CREATE TABLE photos (id serial primary key,photo VARCHAR);<br/>  
+ CREATE TABLE messages (id serial primary key, name text, email varchar, phone Varchar, companyname VARCHAR, subject varchar, message varchar);<br/>  
+ CREATE TABLE register (id serial primary key,name  VARCHAR, email VARCHAR,maidenname  VARCHAR,password  VARCHAR); <br/> 
+ CREATE TABLE cvs (id serial primary key,cv VARCHAR); <br/> 
+ CREATE TABLE schools (id serial primary key,honor VARCHAR,school  VARCHAR, course  VARCHAR,courselink  VARCHAR,graduationyear text);<br/>  
+ CREATE TABLE trainings (id serial primary key,course  VARCHAR, company  VARCHAR,companywebsite  VARCHAR,certificate  VARCHAR,year  text);<br/>  
+ CREATE TABLE hobbies (id serial primary key,hobby VARCHAR); <br/> 
+ CREATE TABLE profiles (id serial primary key,profile text); <br/> 
 ### Technologies Used
 * [Node.js](https://nodejs.com) Node.js is a cross-platform, open-source JavaScript runtime environment that can run on Windows, Linux, Unix, macOS, and more. Node.js runs on the V8 JavaScript engine, and executes JavaScript code outside a web browser. Node.js lets developers use JavaScript to write command line tools and for server-side scripting.
 * [Express.js](https://expressjs.com) Express.js, or simply Express, is a back end web application framework for building RESTful APIs with Node.js, released as free and open-source software under the MIT License. It is designed for building web applications and APIs. It has been called the de facto standard server framework for Node.js.
