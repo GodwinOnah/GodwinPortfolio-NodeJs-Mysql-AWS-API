@@ -113,26 +113,26 @@ const db = knex({
 * ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/photo_images/godwin-onah.png?raw=true)
 ### Project Screenshots
 #### 1
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage1.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage1.png?raw=true)
 #### 2
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage2.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage2.png?raw=true)
 #### 3
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage3.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage3.png?raw=true)
 #### 4
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage4.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage4.png?raw=true)
 #### 5
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage5.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage5.png?raw=true)
 #### 6
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage6.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage6.png?raw=true)
 #### 7
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage7.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage7.png?raw=true)
 #### 8
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage8.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage8.png?raw=true)
 #### 9
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage9.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage9.png?raw=true)
 #### 10
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage10.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage10.png?raw=true)
 #### 11
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage11.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/Onah-godwin-Portfolio-Node-Server/blob/main/public/projectScreenshots/pimage11.png?raw=true)
 ### License
 This project is available for use under my approval.
