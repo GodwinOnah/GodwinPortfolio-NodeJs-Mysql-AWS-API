@@ -10,57 +10,55 @@ Onah-Godwin-Portfolio-Node-Server  is a portfolio web API built with Node.Js. It
 ### API Endpoints
 | HTTP Verbs | Endpoints | Action |
 | --- | --- | --- |
-| POST | /projects | To add a product items |
-| POST | /schools | To save item image |
-| POST | /trainings | To add a delivery option
-| POST | /skills | To add an advertisment |
-| POST | /pmessages | To add confirmed order to admin table |
-| POST | /messages | To add confirmed order to admin table |
-| POST | /login | To add confirmed order to admin table |
-| POST | /register | To add confirmed order to admin table |
-| POST | /cvs | To add confirmed order to admin table |
-| POST | /photos | To add confirmed order to admin table |
-| POST | /profiles | To add a new order |
-| POST | /hobbies | To add a new order |
-| POST | /phone | To add a new order |
-| GET | /projects | To add a product items |
-| GET | /projects/:id | To add a product items |
-| GET | /schools | To save item image |
-| GET | /trainings | To add a delivery option
-| GET | /skills | To add an advertisment |
-| GET | /pmessages | To add confirmed order to admin table |
-| GET | /messages | To add confirmed order to admin table |
-| GET | /login | To add confirmed order to admin table |
-| GET | /register | To add confirmed order to admin table |
-| GET | /cvs | To add confirmed order to admin table |
-| GET | /photos | To add confirmed order to admin table |
-| GET | /profiles | To add a new order |
-| GET | /hobbies | To add a new order |
-| GET | /phone | To add a new order |
-| GET | /phone/:id | To add a new order |
-| GET | /undercontruction | To add a new order |
-| PUT | /profiles | To edit confirmed order save on admin table |
-| PUT | /unconstruction | To user order |
-| PUT | /pmessages | To user order |
-| DELETE | /projects | To add a product items |
-| DELETE | /projects/:id | To add a product items |
-| DELETE | /schools | To save item image |
-| DELETE | /schools/:id | To save item image |
-| DELETE | /trainings | To add a delivery option
-| DELETE | /trainings/:id | To add a delivery option
-| DELETE | /skills | To add an advertisment |
-| DELETE | /skills/:id | To add an advertisment |
-| DELETE | /pmessages | To add confirmed order to admin table |
-| DELETE | /messages | To add confirmed order to admin table |
-| DELETE | /messages/:id | To add confirmed order to admin t| DELETE | /cvs | To add confirmed order to admin table |
-| DELETE | /cvs/:id | To add confirmed order to admin table |
-| DELETE | /photos | To add confirmed order to admin table |
-| DELETE | /photos/:id | To add confirmed order to admin table |
-| DELETE | /profiles/id | To add a new order |
-| DELETE | /hobbies | To add a new order |
-| DELETE | /hobbies/:id | To add a new order |
-| DELETE | /phone | To add a new order |
-| DELETE | /phone/:id | To add a new order |
+| POST | /projects | To add a project items |
+| POST | /schools | To add a school items |
+| POST | /trainings | To add a training |
+| POST | /skills | To add a skill |
+| POST | /pmessages | To add an advertismenet message |
+| POST | /messages | To add message to database|
+| POST | /login | To login as admin |
+| POST | /register | To register as admin |
+| POST | /cvs | To add a resume |
+| POST | /photos | To add a photo |
+| POST | /profiles | To add a profile |
+| POST | /hobbies | To add a hobbie |
+| POST | /phone | To add a phone number |
+| GET | /projects | To view all projects |
+| GET | /projects/:id | To view a project |
+| GET | /schools | To view all schools |
+| GET | /trainings | To view all trainings |
+| GET | /skills | To view all skills |
+| GET | /pmessages | To view all advert messages |
+| GET | /messages | To view all messages |
+| GET | /register | To get registered details |
+| GET | /cvs | To view available resume |
+| GET | /photos | To view all available photos |
+| GET | /profiles | To view all profiles |
+| GET | /hobbies | To view all hobbies |
+| GET | /phone | To view all phone numbers |
+| GET | /phone/:id | To view a phone number |
+| GET | /undercontruction | To view boolean value of page set to 'under construction' or not  |
+| PUT | /profiles | To edit profile |
+| PUT | /unconstruction | To edit the state of page set to underconstruction|
+| DELETE | /projects | To delete all project items |
+| DELETE | /projects/:id | To delete a project item |
+| DELETE | /schools | To delete all school items |
+| DELETE | /schools/:id | To delete a school item |
+| DELETE | /trainings | To delete all trainings |
+| DELETE | /trainings/:id | To delete a training |
+| DELETE | /skills | To delete all skills |
+| DELETE | /skills/:id | To delete a skill |
+| DELETE | /pmessages | To delete all advert messages |
+| DELETE | /messages | To delete all messages |
+| DELETE | /messages/:id | To delete a message |
+| DELETE | /cvs/:id | To delete a resume |
+| DELETE | /photos | To delete all photos  |
+| DELETE | /photos/:id | To delete a photo |
+| DELETE | /profiles/id | To delete a profile |
+| DELETE | /hobbies | To delete all hobbies |
+| DELETE | /hobbies/:id | To delete a hobby |
+| DELETE | /phone | To delete all phone numbers|
+| DELETE | /phone/:id | To delete a phone number |
 ### Database Connections
 #### 1. Heroku postgreSQL connection
 const db = knex({
@@ -91,8 +89,8 @@ const db = knex({
    ### Connect to PostgreSQL database
    psql '<name>';
  ### Creating Tables
- CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR); 
- CREATE TABLE skills (id serial primary key,skill VARCHAR); 
+ [CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR);] 
+ [CREATE TABLE skills (id serial primary key,skill VARCHAR);] 
  CREATE TABLE underconstruction (id serial primary key, underconstruction boolean);
  INSERT INTO  underconstruction (underconstruction)values(false); 
  CREATE TABLE pmessages (id serial primary key,pmessage VARCHAR); 
@@ -112,29 +110,29 @@ const db = knex({
 *  [Heroku](https://heroku.com) Heroku is a cloud platform as a service supporting several programming languages. As one of the first cloud platforms, Heroku has been in development since June 2007, when it supported only the Ruby programming language, but now also supports Java, Node.js, Scala, Clojure, Python, PHP, and Go.
 ### Authors
 * [Onah Godwin Obande](https://godwinportfolio.azurewebsites.net)
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/photo_images/godwin-onah.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/photo_images/godwin-onah.png?raw=true)
 ### Project Screenshots
 #### 1
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage1.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage1.png?raw=true)
 #### 2
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage2.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage2.png?raw=true)
 #### 3
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage3.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage3.png?raw=true)
 #### 4
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage4.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage4.png?raw=true)
 #### 5
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage5.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage5.png?raw=true)
 #### 6
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage6.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage6.png?raw=true)
 #### 7
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage7.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage7.png?raw=true)
 #### 8
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage8.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage8.png?raw=true)
 #### 9
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage9.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage9.png?raw=true)
 #### 10
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage10.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage10.png?raw=true)
 #### 11
-* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Server/public/projectScreenshots/pimage11.png?raw=true)
+* ![alt text](https://github.com/GodwinOnah/BlessingAPI/blob/main/ONAHGODWIN_PORTFOLIO_SERVER/Onah_Godwin_Portfolio_Node_Server/public/projectScreenshots/pimage11.png?raw=true)
 ### License
 This project is available for use under my approval.
