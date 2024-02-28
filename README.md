@@ -89,9 +89,9 @@ const db = knex({
    ### Connect to PostgreSQL database
    psql '<name>';
  ### Creating Tables
- [CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR);] 
- [CREATE TABLE skills (id serial primary key,skill VARCHAR);] 
- CREATE TABLE underconstruction (id serial primary key, underconstruction boolean);
+ *CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR); 
+ *CREATE TABLE skills (id serial primary key,skill VARCHAR); 
+ *CREATE TABLE underconstruction (id serial primary key, underconstruction boolean);
  INSERT INTO  underconstruction (underconstruction)values(false); 
  CREATE TABLE pmessages (id serial primary key,pmessage VARCHAR); 
  CREATE TABLE phone (id serial primary key,phone VARCHAR); 
