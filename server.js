@@ -18,37 +18,46 @@ app.use(bodyParser.json());
 const db = knex({
     client: 'pg',
     connection: {
-        connectionString: process.env.DATABASE_URL,
-        ssl: {
-            rejectUnauthorized: false
-        }
+        host:'127.0.0.1',
+        user:'godwinonah',
+        password:'',
+        database:'Godwin'
     }
 });
+
+
+// const db = knex({
+//     client: 'pg',
+//     connection: {
+//         connectionString: process.env.DATABASE_URL,
+//         ssl: {
+//             rejectUnauthorized: false
+//         }
+//     }
+// });
+
+
 // brew start psql createdb 'GodwinPortfolio' psql 'GodwinPortfolio' \l \d
-// CREATE TABLE projects (id serial primary key, projecttitle VARCHAR,
-// projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink
-// VARCHAR); CREATE TABLE skills (id serial primary key,skill VARCHAR); CREATE
-// TABLE underconstruction (id serial primary key, underconstruction boolean);
-// INSERT INTO  underconstruction (underconstruction)values(false); CREATE TABLE
-// pmessages (id serial primary key,pmessage VARCHAR); CREATE TABLE phone (id
-// serial primary key,phone VARCHAR); CREATE TABLE photos (id serial primary
-// key,photo VARCHAR); CREATE TABLE messages (id serial primary key, name text,
-// email varchar, phone Varchar, companyname VARCHAR, subject varchar, message
-// varchar); CREATE TABLE register (id serial primary key,name  VARCHAR, email
-// VARCHAR,maidenname  VARCHAR,password  VARCHAR); CREATE TABLE cvs (id serial
-// primary key,cv VARCHAR); CREATE TABLE schools (id serial primary key,honor
-// VARCHAR,school  VARCHAR, course  VARCHAR,courselink  VARCHAR,graduationyear
-// text); CREATE TABLE trainings (id serial primary key,course  VARCHAR, company
-//  VARCHAR,companywebsite  VARCHAR,certificate  VARCHAR,year  text); CREATE
-// TABLE hobbies (id serial primary key,hobby VARCHAR); CREATE TABLE profiles
-// (id serial primary key,profile text); Under Construction Section
+// CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR); 
+// CREATE TABLE skills (id serial primary key,skill VARCHAR); 
+// CREATE TABLE underconstruction (id serial primary key, underconstruction boolean);
+// INSERT INTO  underconstruction (underconstruction)values(false); 
+// CREATE TABLE pmessages (id serial primary key,pmessage VARCHAR); 
+// CREATE TABLE phone (id serial primary key,phone VARCHAR); 
+// CREATE TABLE photos (id serial primary key,photo VARCHAR); 
+// CREATE TABLE messages (id serial primary key, name text, email varchar, phone Varchar, companyname VARCHAR, subject varchar, message varchar); 
+// CREATE TABLE register (id serial primary key,name  VARCHAR, email VARCHAR,maidenname  VARCHAR,password  VARCHAR); 
+// CREATE TABLE cvs (id serial primary key,cv VARCHAR); 
+// CREATE TABLE schools (id serial primary key,honor VARCHAR,school  VARCHAR, course  VARCHAR,courselink  VARCHAR,graduationyear text); 
+// CREATE TABLE trainings (id serial primary key,course  VARCHAR, company  VARCHAR,companywebsite  VARCHAR,certificate  VARCHAR,year  text); 
+// CREATE TABLE hobbies (id serial primary key,hobby VARCHAR); 
+// CREATE TABLE profiles (id serial primary key,profile text); 
+
+// Under Construction Section
 app.put('/underconstruction', (req, res) => {
-    const underConstruction = req.body;
+    const underconstruction = req.body;
     db('underconstruction')
-        .update(underConstruction)
-        .where({
-            underconstruction: !underConstruction
-        })
+        .update(underconstruction)
         .then(profile => {
             return res.json('Page under construction updated')
         })
@@ -163,39 +172,38 @@ app.get('/trainings', (req, res) => {
         .catch(err => res.status(400).json('No Trainning added by this time'))
 })
 // Delete Training
-app.delete('/trainings/:id', (req, res) => {
-
-    db
-        .delete('*')
-        .from('trainings')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Training deleted");
-        })
-        .catch(err => res.status(400).json('Trainning not deleted'))
-        
+app.delete('/trainings/:id', (req, res) => {      
         db.select('certificate')
         .from('trainings')
         .where({id: req.params.id})
         .then(data => {
-            fs.unlinkSync(`public/certificates/${data[0].certificate}`) //deleting file from folder
+                db
+                .delete('*')
+                .from('trainings')
+                .where({certificate: data[0].certificate})
+                .then(datax => {
+                        fs.unlinkSync(`public/certificates/${data[0].certificate}`) //deleting file from folder
+                        return res.json("Training deleted");
+                })
+                .catch(err => res.status(400).json('Trainning not deleted'))
+            
         })
 })
 
 // Delete all Trainings
-app.delete('/trainings/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('trainings')
-        .then(data => {
-            return res.json("All Trainings deleted");
-        })
-        .catch(err => res.status(400).json('All Trainnings not deleted'))
+app.delete('/trainings', (req, res) => {      
         db
         .select('certificate')
         .from('trainings')
         .then(data => {
-            fs.unlinkSync(`public/certificates/${data}`) //deleting file from folder
+                db.delete('*')
+                .from('trainings')
+                .then(datax => {
+                        fs.unlinkSync(`public/certificates/${data}`) //deleting file from folder
+                        return res.json("All Trainings deleted");
+                })
+                .catch(err => res.status(400).json('All Trainnings not deleted'))
+           
         })
 })
 
@@ -385,7 +393,7 @@ app.get('/Hobbies', (req, res) => {
         .catch(err => res.status(400).json('No hobby added by this time'))
 })
 
-// Delete Skill
+// Delete Hobby
 app.delete('/hobbies/:id', (req, res) => {
     db
         .delete('*')
@@ -397,7 +405,7 @@ app.delete('/hobbies/:id', (req, res) => {
         .catch(err => res.status(400).json('Hobby not deleted'))
 })
 
-// Delete all Skills
+// Delete all Hobbied
 app.delete('/hobbies', (req, res) => {
     db
         .delete('*')
@@ -408,7 +416,7 @@ app.delete('/hobbies', (req, res) => {
         .catch(err => res.status(400).json('ALl Hobbies not deleted'))
 })
 
-//  Add Skills
+//  Add Hobby
 app.post('/hobbies', (req, res) => {
     const hobby = req.body;
     if (!hobby) {
@@ -453,7 +461,6 @@ app.delete('/phone', (req, res) => {
     db
         .delete('*')
         .from('phone')
-        .where({id: req.params.id})
         .then(data => {
             return res.json("All Phones deleted");
         })
@@ -526,7 +533,6 @@ app.post('/messages', (req, res) => { //Add Clothings
     const {
         name,
         email,
-        phone,
         companyName,
         subject,
         message
@@ -535,7 +541,6 @@ app.post('/messages', (req, res) => { //Add Clothings
         .insert({
         name: name,
         email: email,
-        phone: phone,
         companyname: companyName,
         subject: subject,
         message: message
@@ -701,20 +706,22 @@ app.post('/cvs', uploadCv.single('cv'), (req, res) => {
 
 // Delete CV
 app.delete('/cvs/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('cvs')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("CV deleted");
-        })
-        .catch(err => res.status(400).json('CV not deleted'))
+   
         db
         .select('cv')
         .from('cvs')
         .where({id: req.params.id})
         .then(data => {
-            fs.unlinkSync(`public/CV_images/${data[0].cv}`) //deleting file from folder
+                db
+                .delete('*')
+                .from('cvs')
+                .where({cv: data[0].cv})
+                .then(datax => {
+                        fs.unlinkSync(`public/CV_images/${data[0].cv}`) //deleting file from folder
+                        return res.json("CV deleted");
+                })
+                .catch(err => res.status(400).json('CV not deleted'))
+            
         })
 })
 
@@ -739,9 +746,9 @@ const storagePhotos = multer.diskStorage({
     }
 })
 
-const upload = multer({storage: storagePhotos});
+const uploadPhotos = multer({storage: storagePhotos});
 
-app.post('/photos', upload.single('photo'), (req, res) => {
+app.post('/photos', uploadPhotos.single('photo'), (req, res) => {
     const photo = req.file.filename;
     db('photos')
         .insert({photo: photo})
@@ -752,43 +759,47 @@ app.post('/photos', upload.single('photo'), (req, res) => {
 
 // Delete Photo
 app.delete('/photos/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('photos')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Photo deleted");
-        })
-        .catch(err => res.status(400).json('Photo not deleted'))
+   
+       
         db
         .select('photo')
         .from('photos')
         .where({id: req.params.id})
         .then(data => {
-            fs.unlinkSync(`public/photo_images/${data[0].photo}`) //deleting file from folder
+                db.delete('photo')
+                .from('photos')
+                .where({photo: data[0].photo})
+                .then(datax => {
+                        fs.unlinkSync(`public/photo_images/${data[0].photo}`) //deleting file from folder
+                    return res.json("Photo deleted");
+                })
+                .catch(err => res.status(400).json('Photo not deleted'))
+           
         })
 })
 
 // Delete all Photos
 app.delete('/photos', (req, res) => {
-    db
-        .delete('*')
-        .from('photos')
-        .then(data => {
-            return res.json("All Photos deleted");
-        })
-        .catch(err => res.status(400).json('All Photos not deleted'))
+   
         db
         .select('photo')
         .from('photos')
         .then(data => {
-            fs.unlinkSync(`public/photo_images/${data}`) //deleting file from folder
+                db
+                .delete('*')
+                .from('photos')
+                .then(datax => {
+                fs.unlinkSync(`public/photo_images/${data}`) //deleting file from folder
+                    return res.json("All Photos deleted");
+                })
+                .catch(err => res.status(400).json('All Photos not deleted'))
+            
         })
 })
 
-const PORT = process.env.PORT
-app.listen(PORT || 3002, function () {
-    console.log(`Sever running at port: ${PORT}`);
-});
+// const PORT = process.env.PORT
+// app.listen(PORT || 3002, function () {
+//     console.log(`Sever running at port: ${PORT}`);
+// });
 
-// app.listen(3002,function(){ console.log('Sever running at port: 3002'); });
+app.listen(3000,function(){ console.log('Sever running at port: 3000'); });

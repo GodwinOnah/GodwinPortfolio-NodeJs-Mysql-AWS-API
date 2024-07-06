@@ -3,37 +3,50 @@ services:
   mysqldb:
     container_name: mysqlcontainer
     image: mysql
-    command: --default-authentication-plugin=mysql_native_password
+    # command: --default-authentication-plugin=mysql_native_password
     restart: unless-stopped
     volumes: 
       - ./dbinit/init.sql:/docker-entrypoint-initdb.d/0_init.sql
-      - $HOME/database:/var/lib/mysql
+      - db_data:/var/lib/mysql #If you don't define this, logging into a workbench will prompt errors
     ports: 
-       - 3307:3306 # mapping from local port to container port
+       - 3308:3306 # mapping from local port to container port
     expose:
-      - 3307
+      - 3308
     environment:      
       MYSQL_DATABASE: portfoliodb
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: Godwin1
-      MYSQL_ROOT_PASSWORD: Godwin1
+      MYSQL_USER: Godwin
+      MYSQL_PASSWORD: pass
+      MYSQL_ROOT_PASSWORD: pass
       SERVICE_TAGS: prod
       SERVICE_NAME: mysqldbservice
     networks:
       - internalnet
 
-  postgredb:
-   container_name: postgresqlcontainer
-   image: postgres
-   environment:
-       POSTGRES_USER: Godwin
-       POSTGRES_PASSWORD: secret
-   ports:
-     - 5432:5432      
-   volumes:
-      - ./dbinit/init.sql:/docker-entrypoint-initdb.d/0_init.sql
-   networks:
+  phpmyadmin:
+    container_name: phpmyadmincontainer
+    image: phpmyadmin
+    restart: always
+    depends_on:
+      - mysqldb
+    ports:
+      - 8081:80
+    environment:
+       PMA_HOST: mysqldb
+    networks:
       - internalnet
+
+  # postgredb:
+  #  container_name: postgresqlcontainer
+  #  image: postgres
+  #  environment:
+  #      POSTGRES_USER: Godwin
+  #      POSTGRES_PASSWORD: secret
+  #  ports:
+  #    - 5432:5432      
+  #  volumes:
+  #     - ./dbinit/init.sql:/docker-entrypoint-initdb.d/0_init.sql
+  #  networks:
+  #     - internalnet
 
 
   nodeapp:
@@ -50,7 +63,7 @@ services:
       DB_NAME: portfoliodb
       DB_USER: admin
       DB_HOST: mysqldb
-      DB_PASSWORD: Godwin1
+      DB_PASSWORD: root
       DB_PORT: 3307
       SERVER_PORT: 3000 # container port
       DB_CONNECTION_LIMIT: 10
@@ -63,3 +76,5 @@ networks:
   internalnet:
     driver: bridge
        
+volumes:
+  db_data:
