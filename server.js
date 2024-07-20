@@ -5,210 +5,276 @@ import knex from 'knex';
 import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
+import {createPool} from 'mysql2/promise';
 import nodeMailer from 'nodemailer';
-import {} from 'dotenv/config'
+import {config} from 'dotenv';
 
+config();
 const app = express();
 app.use(cors());
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-//connecting to database using knex
-const db = knex({
-    client: 'pg',
-    connection: {
-        host:'127.0.0.1',
-        user:'godwinonah',
-        password:'',
-        database:'Godwin'
+//connecting to remote (dockerized) database using connection pool
+const pool = createPool({       
+        host:process.env.MYSQL_HOST,
+        port:process.env.MYSQL_PORT,
+        user:process.env.MYSQL_USER,
+        password:process.env.MYSQL_PASSWORD,
+        database:process.env.MYSQL_DATABASE_NAME
     }
-});
+);
 
 
-// const db = knex({
-//     client: 'pg',
-//     connection: {
-//         connectionString: process.env.DATABASE_URL,
-//         ssl: {
-//             rejectUnauthorized: false
-//         }
-//     }
-// });
+const connectToDatabase = async () => {
+    try{
+           const t = await pool.getConnection();
+            console.log("Database connection successful!!");
+    }
+    catch(error){
+            console.log("Database connection failed!!");
+            console.log(error);
+            throw(error);
+    };
+}
 
-
-// brew start psql createdb 'GodwinPortfolio' psql 'GodwinPortfolio' \l \d
-// CREATE TABLE projects (id serial primary key, projecttitle VARCHAR, projectdescription text,videolink VARCHAR, githubname VARCHAR,projectlink VARCHAR); 
-// CREATE TABLE skills (id serial primary key,skill VARCHAR); 
-// CREATE TABLE underconstruction (id serial primary key, underconstruction boolean);
-// INSERT INTO  underconstruction (underconstruction)values(false); 
-// CREATE TABLE pmessages (id serial primary key,pmessage VARCHAR); 
-// CREATE TABLE phone (id serial primary key,phone VARCHAR); 
-// CREATE TABLE photos (id serial primary key,photo VARCHAR); 
-// CREATE TABLE messages (id serial primary key, name text, email varchar, phone Varchar, companyname VARCHAR, subject varchar, message varchar); 
-// CREATE TABLE register (id serial primary key,name  VARCHAR, email VARCHAR,maidenname  VARCHAR,password  VARCHAR); 
-// CREATE TABLE cvs (id serial primary key,cv VARCHAR); 
-// CREATE TABLE schools (id serial primary key,honor VARCHAR,school  VARCHAR, course  VARCHAR,courselink  VARCHAR,graduationyear text); 
-// CREATE TABLE trainings (id serial primary key,course  VARCHAR, company  VARCHAR,companywebsite  VARCHAR,certificate  VARCHAR,year  text); 
-// CREATE TABLE hobbies (id serial primary key,hobby VARCHAR); 
-// CREATE TABLE profiles (id serial primary key,profile text); 
+const client = await pool.getConnection();
 
 // Under Construction Section
-app.put('/underconstruction', (req, res) => {
+app.put('/underconstruction', async (req, res) => {
     const underconstruction = req.body;
-    db('underconstruction')
-        .update(underconstruction)
-        .then(profile => {
-            return res.json('Page under construction updated')
-        })
-        .catch(err => res.json('Page under construction not updated. Check if value set for underconstruction ta' +
-                'ble is the correct one'))
+    const QUERY = " UPDATE underconstruction SET underconstruction = ?";
+    try
+    {
+    const result = await client.query(QUERY,[underconstruction]);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('page not updated');
+        throw(error);
+    }
 })
 
-app.get('/underconstruction', (req, res) => {
-    return db
-        .select('*')
-        .from('underconstruction')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.json('No page under construction value found'))
+app.get('/underconstruction', async (req, res) => { 
+    const QUERY = " SELECT * FROM underconstruction ";
+    try
+    {
+    const result = await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No web page under construction value found');
+        throw(error);
+    }
 })
+
+
 // PROJECT Get Projects
-app.get('/projects', (req, res) => {
-    return db
-        .select('*')
-        .from('projects')
-        .then(data => {
-            res.json(data);
-        })
+app.get('/projects', async (req, res) => {
+
+    const QUERY = " SELECT * FROM projects ";
+    try
+    {
+    const result =await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No project added or found');
+        throw(error);
+    }
 })
 
-app.delete('/projects/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('projects')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Project deleted");
-        })
-        .catch(err => res.status(400).json('Project not deleted'))
+app.delete('/projects/:id', async(req, res) => {
+
+    const QUERY = " DELETE FROM projects WHERE id = ?";
+    try
+    {
+    const result = await client.query(QUERY,[req.params.id]);
+    if(result)
+    return res.json("Project deleted");
+    return res.json("Project not deleted");
+    }
+    
+    catch(error){
+        console.log('No project added or found');
+        throw(error);
+    }
 })
 
 //Delete all Projects
-app.delete('/projects', (req, res) => {
-    db
-        .delete('*')
-        .from('projects')
-        .then(data => {
-            return res.json("All Projects deleted");
-        })
-        .catch(err => res.status(400).json('All Projects not deleted'))
+app.delete('/projects', async(req, res) => {
+    const QUERY = " DELETE FROM projects";
+    try
+    {
+    const result = await client.query(QUERY);
+    if(result)
+    return res.json("All project(s) deleted");
+    return res.json("Project(s) not deleted");
+    }
+    
+    catch(error){
+        console.log('No project added or found');
+        throw(error);
+    }
 })
 
 // Add Projects
-app.post('/projects', (req, res) => {
+app.post('/projects', async (req, res) => {
     const {projectTitle, projectDescription, videoLink, gitHubLink, projectLink} = req.body;
-    db('projects')
-        .insert({projecttitle: projectTitle, projectdescription: projectDescription, videolink: videoLink, githubname: gitHubLink, projectlink: projectLink})
-        .then(data => {
-            return res.json("Project added");
-        })
-        .catch(err => res.status(400).json('Project not added'))
+    const QUERY = " INSERT INTO projects (projecttitle, projectdescription, videolink, githubname, projectlink) VALUES (?,?,?,?,?)";
+    try
+    {
+    const result = await client.query(QUERY,[projectTitle, projectDescription, videoLink, gitHubLink, projectLink]);
+    if(result)
+    return res.json('New Project added');
+    }
+    catch(error){
+        console.log('Project Not added');
+        throw(error);
+    }
 })
 
+
 // Education Get Schools
-app.get('/schools', (req, res) => {
-    return db
-        .select('*')
-        .from('schools')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No SChool added by this time'))
+app.get('/schools', async (req, res) => {
+
+    const QUERY = " SELECT * FROM schools ";
+    try
+    {
+    const result =await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No SChool added or found');
+        throw(error);
+    }
 })
 // Delete school
-app.delete('/schools/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('schools')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("School deleted");
-        })
-        .catch(err => res.status(400).json('School not deleted'))
+app.delete('/schools/:id', async (req, res) => {
+    const QUERY = " DELETE FROM schools WHERE id = ?";
+    try
+    {
+    const result = await client.query(QUERY,[req.params.id]);
+    if(result)
+    return res.json("Schools deleted");
+    return res.json("Schools not deleted");
+    }
+    
+    catch(error){
+        console.log('No school added or found');
+        throw(error);
+    }
 })
 
 // Delete all school
-app.delete('/schools', (req, res) => {
-    db
-        .delete('*')
-        .from('schools')
-        .then(data => {
-            return res.json("All Schools deleted");
-        })
-        .catch(err => res.status(400).json('All Schools not deleted'))
+app.delete('/schools', async (req, res) => {
+    const QUERY = " DELETE * FROM schools";
+    try
+    {
+    const result = await client.query(QUERY);
+    if(result)
+    return res.json("All school(s) deleted");
+    return res.json("School(s) not deleted");
+    }
+    
+    catch(error){
+        console.log('No school added or found');
+        throw(error);
+    }
 })
 
 // Add schools
-app.post('/schools', (req, res) => {
+app.post('/schools', async (req, res) => {
     const {honor, school, course, courseLink, graduationYear} = req.body;
-    db('schools')
-        .insert({honor: honor, school: school, course: course, courselink: courseLink, graduationyear: graduationYear})
-        .then(data => {
-            return res.json("School added");
-        })
-        .catch(err => res.status(400).json('School not added'))
+    const QUERY = " INSERT INTO schools (honor, school, course, courselink, graduationyear) VALUES (?,?,?,?,?)";
+    try
+    {
+    const result = await client.query(QUERY,[honor, school, course, courseLink, graduationYear]);
+    if(result)
+    return res.json('New School added');
+    }
+    catch(error){
+        console.log('School Not added');
+        throw(error);
+    }
+    
 })
 
 // Get Trainigs
-app.get('/trainings', (req, res) => {
-    return db
-        .select('*')
-        .from('trainings')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No Trainning added by this time'))
+app.get('/trainings', async (req, res) => {
+
+    const QUERY = " SELECT * FROM trainings ";
+    try
+    {
+    const result =await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No training added or found');
+        throw(error);
+    }
 })
 // Delete Training
-app.delete('/trainings/:id', (req, res) => {      
-        db.select('certificate')
-        .from('trainings')
-        .where({id: req.params.id})
-        .then(data => {
-                db
-                .delete('*')
-                .from('trainings')
-                .where({certificate: data[0].certificate})
-                .then(datax => {
-                        fs.unlinkSync(`public/certificates/${data[0].certificate}`) //deleting file from folder
-                        return res.json("Training deleted");
-                })
-                .catch(err => res.status(400).json('Trainning not deleted'))
-            
-        })
+app.delete('/trainings/:id', async(req, res) => { 
+    
+    const QUERY1 = " SELECT certificate FROM trainings WHERE id = ?";
+    const QUERY2 = " DELETE FROM trainings WHERE  certificate = ?";
+    try
+    {
+    const certificate = await client.query(QUERY1,[req.params.id]);
+    const result = await client.query(QUERY2,[certificate[0][0].certificate]);
+    if(result){
+        fs.unlinkSync(`public/certificates/${certificate[0][0].certificate}`) //deleting file from folder
+        return res.json("Training deleted");
+    }
+    return res.json("Training not deleted");
+    }
+    
+    catch(error){
+        console.log('No training added or found');
+        throw(error);
+    }
+        // db.select('certificate')
+        // .from('trainings')
+        // .where({id: req.params.id})
+        // .then(data => {
+        //         db
+        //         .delete('*')
+        //         .from('trainings')
+        //         .where({certificate: data[0].certificate})
+        //         .then(datax => {
+        //                 fs.unlinkSync(`public/certificates/${data[0].certificate}`) //deleting file from folder
+        //                 return res.json("Training deleted");
+        //         })
+        //         .catch(err => res.status(400).json('Trainning not deleted'))         
+        // })
 })
 
 // Delete all Trainings
-app.delete('/trainings', (req, res) => {      
-        db
-        .select('certificate')
-        .from('trainings')
-        .then(data => {
-                db.delete('*')
-                .from('trainings')
-                .then(datax => {
-                        fs.unlinkSync(`public/certificates/${data}`) //deleting file from folder
-                        return res.json("All Trainings deleted");
-                })
-                .catch(err => res.status(400).json('All Trainnings not deleted'))
-           
-        })
+app.delete('/trainings', async(req, res) => { 
+    const QUERY1 = " SELECT certificate FROM trainings";
+    const QUERY2 = " DELETE FROM trainings";
+    try
+    {
+    const certificate = await client.query(QUERY1);
+    console.log(certificate)
+    const result = await client.query(QUERY2);
+    if(result){
+        fs.unlinkSync(`public/certificates/${certificate}`) //deleting file from folder
+        return res.json("All training(s) deleted");
+    }
+    return res.json("Training(s) not deleted");
+    }
+    
+    catch(error){
+        console.log('No training added or found');
+        throw(error);
+    }
 })
 
 // Add training
-const storageTraining = multer.diskStorage({
+const storageTraining = multer.diskStorage({ //Saving Certificate image
     destination: (req, file, cd) => {
         cd(null, 'public/certificates')
     },
@@ -219,420 +285,522 @@ const storageTraining = multer.diskStorage({
 
 const uploadTraining = multer({storage: storageTraining});
 
-app.post('/trainings', uploadTraining.single('file'), (req, res) => {
+app.post('/trainings', uploadTraining.single('certificateFile'), async (req, res) => {
     const certificateFileName = req.file.filename;
     const {tCourse, tCompany, tCompanyWebsite, tYear} = req.body;
-    db('trainings')
-        .insert({course: tCourse, company: tCompany, companywebsite: tCompanyWebsite, certificate: certificateFileName, year: tYear})
-        .then(data => {
-            return res.json("Training added");
-        })
-        .catch(err => res.status(400).json('Training not added'))
+    const QUERY = " INSERT INTO trainings (course, company, companywebsite, certificate, year) VALUES (?,?,?,?,?)";
+    try
+    {
+    const result = await client.query(QUERY,[tCourse, tCompany, tCompanyWebsite,certificateFileName, tYear]);
+    if(result)
+    return res.json('New School added');
+    }
+    catch(error){
+        console.log('School Not added');
+        throw(error);
+    }
 })
 
 // SKILL Get Skills
-app.get('/skills', (req, res) => {
-    return db
-        .select('*')
-        .from('skills')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No skill added by this time'))
+app.get('/skills', async (req, res) => {
+
+    const QUERY = " SELECT * FROM skills";
+    try
+    {
+    const result = await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No skill added or found');
+        throw(error);
+    }
 })
 
 // Delete Skill
-app.delete('/skills/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('skills')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Skill deleted");
-        })
-        .catch(err => res.status(400).json('Skill not deleted'))
+app.delete('/skills/:id', async(req, res) => {
+    const QUERY = " DELETE FROM skills WHERE id = ?";
+    try
+    {
+    const result = await client.query(QUERY,[req.params.id]);
+    if(result)
+    return res.json("Skill deleted");
+    return res.json("Skill not deleted");
+    }
+    
+    catch(error){
+        console.log('No skill added or found');
+        throw(error);
+    }
 })
 
 // Delete All Skill
-app.delete('/skills', (req, res) => {
-    db
-        .delete('*')
-        .from('skills')
-        .then(data => {
-            return res.json("All Skills deleted");
-        })
-        .catch(err => res.status(400).json(' All Skill not deleted'))
+app.delete('/skills', async(req, res) => {
+    const QUERY = " DELETE FROM skills";
+    try
+    {
+    const result = await client.query(QUERY);
+    if(result)
+    return res.json("All Skills deleted");
+    return res.json("All Skills not deleted");
+    }
+    
+    catch(error){
+        console.log('No skill added or found');
+        throw(error);
+    }
 })
 
 //  Add Skills
-app.post('/skills', (req, res) => {
+app.post('/skills', async(req, res) => {
     const skill = req.body;
+    const QUERY = " INSERT INTO skills (skill) VALUES (?)";
+    try
+    {
+
+    const result = await client.query(QUERY,[skill.skill]);
+    if(result)
+    return res.json('Skill added');
+    }
+    catch(error){
+        console.log('No skill added or found');
+        throw(error);
+    }
     if (!skill) {
         res
             .status(400)
             .json('Skill not recieved');
         return;
     }
-    db('skills')
-        .insert(skill)
-        .then(skillx => {
-            return res.json('Skill added')
-        })
-        .catch(err => res.status(400).json('Skill not added'))
+    // db('skills')
+    //     .insert(skill)
+    //     .then(skillx => {
+    //         return res.json('Skill added')
+    //     })
+    //     .catch(err => res.status(400).json('Skill not added'))
 })
 
 //PUBLIC MESSAGE Get Public Message
-app.get('/pmessages', (req, res) => {
-    return db
-        .select('*')
-        .from('pmessages')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No alert/notification message added by this time'))
+app.get('/pmessages', async (req, res) => {
+
+    const QUERY = " SELECT * FROM pmessages ";
+    try
+    {
+    const result = await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No alert/notification message added by this time');
+        throw(error);
+    }
 })
 
 // Delete public message
-app.delete('/pmessages/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('pmessages')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Message deleted");
-        })
-        .catch(err => res.status(400).json('Message not deleted'))
+app.delete('/pmessages/:id', async(req, res) => {
+    const QUERY = " DELETE FROM pmessages WHERE id = ?";
+    try
+    {
+    const result = await client.query(QUERY,[req.params.id]);
+    if(result)
+    return res.json("Message deleted");
+    return res.json("Message not deleted");
+    }
+    
+    catch(error){
+        console.log('No message found');
+        throw(error);
+    }
 })
 
 // Delete all public message
-app.delete('/pmessages', (req, res) => {
-    db
-        .delete('*')
-        .from('pmessages')
-        .then(data => {
-            return res.json("All message deleted");
-        })
-        .catch(err => res.status(400).json('All messages not deleted'))
+app.delete('/pmessages', async(req, res) => {
+    const QUERY = " DELETE FROM pmessages";
+    try
+    {
+    const result = await client.query(QUERY);
+    if(result)
+    return res.json("Messages deleted");
+    return res.json("Messages not deleted");
+    }
+    
+    catch(error){
+        console.log('No message found');
+        throw(error);
+    }
 })
 
 //  Add public message
-app.post('/pmessages', (req, res) => {
+app.post('/pmessages', async(req, res) => {
     const pmessage = req.body;
-    if (!pmessage) {
-        res
-            .status(400)
-            .json('Message not recieved');
-        return;
+    const QUERY = " INSERT INTO pmessages (pmessages) VALUES (?)";
+    try
+    {
+    const result = await client.query(QUERY,[pmessage]);
+    if(result)
+    return res.json('Advert added');
     }
-    db('pmessages')
-        .insert(pmessage)
-        .then(message => {
-            return res.json('Message added')
-        })
-        .catch(err => res.status(400).json('Message not added'))
+    catch(error){
+        console.log('Advert not added');
+        throw(error);
+    }
 })
 
 // PROFILE Get Profile
-app.get('/profiles', (req, res) => {
-    return db
-        .select('*')
-        .from('profiles')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No profile summary added'))
+app.get('/profiles', async (req, res) => {
+
+    const QUERY = "SELECT * FROM profiles";
+    try
+    {
+    const result = await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No profile summary added of found');
+        throw(error);
+    }
+
 })
 
 // Delete Profile
-app.delete('/profiles/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('profiles')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("profile deleted");
-        })
-        .catch(err => res.status(400).json('profile not deleted'))
+app.delete('/profiles/:id', async(req, res) => {
+    const QUERY = " DELETE FROM profiles WHERE id = ?";
+    try
+    {
+    const result = await client.query(QUERY,[req.params.id]);
+    if(result)
+    return res.json("Profile deleted");
+    return res.json("Profile not deleted");
+    }
+    
+    catch(error){
+        console.log('No profile found');
+        throw(error);
+    }
 })
 //  Add Profile
-app.post('/profiles', (req, res) => {
+app.post('/profiles', async(req, res) => {
+    
     const {profile, profileTitle} = req.body;
-    if (!profile) {
-        res
-            .status(400)
-            .json('Profile not recieved');
-        return;
+    const QUERY = " INSERT INTO profiles (profile, profiletitle) VALUES (?,?)";
+    try
+    {
+    const result = await client.query(QUERY,[profile, profileTitle]);
+    if(result)
+    return res.json('New profile summary added');
     }
-    db('profiles')
-        .insert({profile: profile, profiletitle: profileTitle})
-        .then(profile => {
-            return res.json('Profile added')
-        })
-        .catch(err => res.status(400).json('Profile added'))
+    catch(error){
+        console.log('Profile not added');
+        throw(error);
+    }
 })
 
 // Update Profile
-app.put('/profiles', (req, res) => {
+app.put('/profiles', async (req, res) => {
     const {profile, profileTitle} = req.body;
-    db('profiles')
-        .update({profile: profile, profiletitle: profileTitle})
-        .then(profile => {
-            return res.json('Profile updated')
-        })
-        .catch(err => res.status(400).json('Not added'))
+
+    const QUERY = " UPDATE profiles SET profile = ?, profiletitle = ? ";
+    try
+    {
+    const result = await client.query(QUERY,[profile, profileTitle]);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('Profile not updated');
+        throw(error);
+    }
 })
 
 // HOBBY Get Hobbies
-app.get('/Hobbies', (req, res) => {
-    return db
-        .select('*')
-        .from('hobbies')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No hobby added by this time'))
+app.get('/Hobbies', async (req, res) => {
+
+    const QUERY = " SELECT * FROM hobbies ";
+    try
+    {
+    const result =await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No hobby added or found');
+        throw(error);
+    }
 })
 
 // Delete Hobby
-app.delete('/hobbies/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('hobbies')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Hobby deleted");
-        })
-        .catch(err => res.status(400).json('Hobby not deleted'))
+app.delete('/hobbies/:id', async(req, res) => {
+    const QUERY = " DELETE FROM hobbies WHERE id = ?";
+    try
+    {
+    const result = await client.query(QUERY,[req.params.id]);
+    if(result)
+    return res.json("Hobby deleted");
+    return res.json("Hobby not deleted");
+    }
+    
+    catch(error){
+        console.log('No hobby found');
+        throw(error);
+    }
 })
 
 // Delete all Hobbied
-app.delete('/hobbies', (req, res) => {
-    db
-        .delete('*')
-        .from('hobbies')
-        .then(data => {
-            return res.json("All Hobbies deleted");
-        })
-        .catch(err => res.status(400).json('ALl Hobbies not deleted'))
+app.delete('/hobbies', async(req, res) => {
+    const QUERY = " DELETE FROM hobbies";
+    try
+    {
+    const result = await client.query(QUERY);
+    if(result)
+    return res.json("Hobbies deleted");
+    return res.json("Hobbies not deleted");
+    }
+    
+    catch(error){
+        console.log('No hobby found');
+        throw(error);
+    }
 })
 
 //  Add Hobby
-app.post('/hobbies', (req, res) => {
+app.post('/hobbies', async(req, res) => {
     const hobby = req.body;
-    if (!hobby) {
-        res
-            .status(400)
-            .json('Hobby not recieved');
-        return;
+    const QUERY = " INSERT INTO hobbies(hobby) VALUES(?)";
+    try
+    {
+    const result = await client.query(QUERY,[hobby]);
+    if(result)
+    return res.json('New hobby added');
     }
-    db('hobbies')
-        .insert(hobby)
-        .then(hobby => {
-            return res.json('Hobby added')
-        })
-        .catch(err => res.status(400).json('Hobby added'))
+    catch(error){
+        console.log('Hobby not added');
+        throw(error);
+    }
 })
 
 // PHONE Get Phonenumbers
-app.get('/phone', (req, res) => {
-    return db
-        .select('*')
-        .from('phone')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No phone number added by this time'))
+app.get('/phone', async (req, res) => {
+    const QUERY = " SELECT * FROM phone ";
+    try
+    {
+    const result = await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No phone number saved');
+        throw(error);
+    }
 })
 
 // Delete Phone
-app.delete('/phone/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('phone')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Phone deleted");
-        })
-        .catch(err => res.status(400).json('Phone not deleted'))
+app.delete('/phone/:id', async(req, res) => {
+    const QUERY = " DELETE FROM phone WHERE id = ?";
+    try
+    {
+    const result = await client.query(QUERY,[req.params.id]);
+    if(result)
+    return res.json("Phone deleted");
+    return res.json("Phone not deleted");
+    }
+    
+    catch(error){
+        console.log('No Phone found');
+        throw(error);
+    }
 })
 
 // Delete all Phone
-app.delete('/phone', (req, res) => {
-    db
-        .delete('*')
-        .from('phone')
-        .then(data => {
-            return res.json("All Phones deleted");
-        })
-        .catch(err => res.status(400).json('All Phones not deleted'))
+app.delete('/phone', async(req, res) => {
+    const QUERY = " DELETE FROM hobbies";
+    try
+    {
+    const result = await client.query(QUERY);
+    if(result)
+    return res.json("Phones deleted");
+    return res.json("Phones not deleted");
+    }
+    
+    catch(error){
+        console.log('No phone found');
+        throw(error);
+    }
 })
 
 // Add Phonenumber
-app.post('/phone', (req, res) => {
+app.post('/phone', async(req, res) => {
     const phone = req.body;
-    if (!phone) {
-        res
-            .status(400)
-            .json('Phone number not received');
-        return;
+    const QUERY = " INSERT INTO phone(phone) VALUES(?)";
+    try
+    {
+    const result = await client.query(QUERY,[phone]);
+    if(result)
+    return res.json('New phone number added');
     }
-    db('phone')
-        .insert(phone)
-        .then(phone => {
-            return res.json('Phone number added')
-        })
-        .catch(err => res.status(400).json('Phone number not added'))
+    catch(error){
+        console.log('Phone number not added');
+        throw(error);
+    }
 })
 
 // MESSSAGE Get Received Messages
-app.get('/messages', (req, res) => {
-    return db
-        .select('*')
-        .from('messages')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No message received added by this time'))
+app.get('/messages', async (req, res) => {
+    const QUERY = " SELECT * FROM messages ";
+    try
+    {
+    const result =await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No meesage received from employers by this time');
+        throw(error);
+    }
 })
 
 // Delete Message
-app.delete('/messages/:id', (req, res) => {
-    db
-        .delete('*')
-        .from('messages')
-        .where({id: req.params.id})
-        .then(data => {
-            return res.json("Message deleted");
-        })
-        .catch(err => res.status(400).json('Message not deleted'))
+app.delete('/messages/:id', async(req, res) => {
+    const QUERY = " DELETE FROM messages WHERE id = ?";
+    try
+    {
+    const result = await client.query(QUERY,[req.params.id]);
+    if(result)
+    return res.json("Message deleted");
+    return res.json("Mesasge not deleted");
+    }
+    
+    catch(error){
+        console.log('No Message found');
+        throw(error);
+    }
 })
 // Delete all Message
-app.delete('/messages', (req, res) => {
-    db
-        .delete('*')
-        .from('messages')
-        .then(data => {
-            return res.json("All Messages deleted");
-        })
-        .catch(err => res.status(400).json('All Messages not deleted'))
+app.delete('/messages', async(req, res) => {
+    const QUERY = " DELETE FROM messages";
+    try
+    {
+    const result = await client.query(QUERY);
+    if(result)
+    return res.json("Messages deleted");
+    return res.json("Message not deleted");
+    }
+    
+    catch(error){
+        console.log('No message found');
+        throw(error);
+    }
 })
 
-app.get('/messages/:id', (req, res) => {
-    return db
-        .select('*')
-        .from('messages')
-        .where({id: req.params.id})
-        .then(data => {
-            res.json("Item gotten");
-        })
-        .catch(err => res.status(400).json('Can not get item'))
+app.get('/messages/:id', async (req, res) => {
+
+    const QUERY = "SELECT * FROM messages WHERE id=?";
+    try
+    {
+    const result =await client.query(QUERY,[id]);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('Message not gotten');
+        throw(error);
+    }
 })
 
 // Recieve a message
-app.post('/messages', (req, res) => { //Add Clothings
-    const {
-        name,
-        email,
-        companyName,
-        subject,
-        message
-    } = req.body;
-    db('messages')
-        .insert({
-        name: name,
-        email: email,
-        companyname: companyName,
-        subject: subject,
-        message: message
-    })
-        .then(messages => {
-            return res.json('Message sent')
-        })
+app.post('/messages', async(req, res) => { //Add Clothings
+    const {name,email,companyName,subject,message} = req.body;
+    const QUERY = " INSERT INTO messages (name,email,companyname,subject,message) VALUES (?,?,?,?,?)";
+    try
+    {
+    const result = await client.query(QUERY,[name,email,companyName,subject,message]);
+    if(result)
+    return res.json('New message added');
+    }
+    catch(error){
+        console.log('Message not added');
+        throw(error);
+    }
 })
 
 // LOGIN Admin Login Get Login
-app.post('/login', (req, res) => {
+app.post('/login', async(req, res) => {
     const {email, hash} = req.body;
-    db
-        .select('password')
-        .from('register')
-        .where({email: email})
-        .then(password => {
-            if (password == hash) {
-                return db
-                    .select('*')
-                    .from('register')
-                    .where({email: email})
-                    .then(user => {
-                        res.json(user[0])
-                    })
-            } else {
-                res
-                    .status(400)
-                    .json('Not found')
-            }
-        })
-        .catch(err => res.status(400).json('erro getting user'))
+
+    const password = "SELECT password FROM register WHERE email=?";
+    const QUERY = "SELECT * FROM register WHERE email=?";
+    try
+    {
+    const resultPassword = await client.query(password,[email]);
+    const result = await client.query(QUERY,[email]);
+    if(resultPassword==hash)
+    return res.json(result);
+    }
+    catch(error){
+        console.log('You are not registered');
+        throw(error);
+    }
 })
 
 //Get register
-app.get('/register', (req, res) => {
-    return db
-        .select('name', 'email', 'password')
-        .from('register')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No admin registered added by this time'))
+app.get('/register', async (req, res) => {
+    const QUERY = " SELECT * FROM register ";
+    try
+    {
+    const result = await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No admin added or found');
+        throw(error);
+    }
 })
 
 //Add register
-app.post('/register', (req, res) => {
+app.post('/register', async(req, res) => {
     const {name, email, maidenName, hash} = req.body;
-    db('register')
-        .insert({name: name, email: email, maidenname: maidenName, password: hash})
-        .then(messages => {
-            return res.json('Registered')
-        })
+    const QUERY = " INSERT INTO register (name, email, maidenname, password) VALUES (?,?,?,?)";
+    try
+    {
+    const result = await client.query(QUERY,[name, email, maidenName, hash]);
+    if(result)
+    return res.json('Registration successful');
+    }
+    catch(error){
+        console.log('Registration failed');
+        throw(error);
+    }
 })
 
 //Update user
-app.put('/register', (req, res) => {
+app.put('/register', async (req, res) => {
 
     const {email, maidenName, hash} = req.body;
 
-    db
-        .select('maidenname')
-        .from('register')
-        .where({email: email})
-        .then(maidenNamex => {
-            if (maidenNamex[0].maidenname == maidenName) {
-                db('register')
-                    .update({password: hash})
-                    .where({email: email, maidenname: maidenName})
-                    .then(data => {
-                        if (data) {
-                            return res.json('Admin password updated');
-                        } else {
-                            return res.json('Admin password not updated');
-                        }
-                    })
-            } else {
-                db
-                    .select('email', 'maidenname')
-                    .from('register')
-                    .where({email: email})
-                    .then(data => {
-                        const messageTemplate = `<h1>Password Recovery</h1>
-                                        <p>Your recovery datails are:
-                                        <br/>
-                                        <br/>Email: ${data[0].email},
-                                        <br/>Maiden Name: ${data[0].maidenname}.
-                                        <br/>
-                                        <br/>
-                                        Thanks.
-                                        </p>
-                                        `;
+    const QUERY1 = " SELECT maidenname FROM register WHERE email = ?";
+    const QUERY2 = " UPDATE register SET password = ? WHERE email = ?, maidenname = ?";
+    const QUERY3 = " SELECT maidenname, email FROM register WHERE email = ?";
+
+    try
+    {
+    const maidenname = await client.query(QUERY1,[email]);
+    const maidennameAndEmail = await client.query(QUERY3,[email]);
+
+    if (maidenname[0][0].maidenname == maidenName) {
+       const result = await client.query(QUERY2,[hash,email,maidenName]);
+       if(result){
+         return res.json('Admin password updated');
+                 } 
+       else {
+            return res.json('Admin password not updated');
+         }
+    }
+
+    else{
+        const messageTemplate = `<h1>Password Recovery</h1>
+                                                 <p>Your recovery datails are:
+                                                 <br/>
+                                                  <br/>
+                                                  Email: ${maidennameAndEmail[0][0].email},
+                                                  <br/>
+                                                  Maiden Name: ${maidennameAndEmail[0][0].maidenname}.
+                                                  <br/>
+                                                  <br/>
+                                                  Thanks.
+                                                  </p>
+                                                  `;
 
                         const transporter = nodeMailer.createTransport({
 
@@ -665,22 +833,101 @@ app.put('/register', (req, res) => {
                         }
 
                         sendMail(transporter, info);
-                    })
-                    .catch(err => res.status(400).json('You are not the admin'))
-            }
-        })
-        .catch(err => res.status(400).json('erro getting user'))
+        
+    }
+    
+    }
+    catch(error){
+        console.log('You are not an admin');
+        throw(error);
+    }
+    
+    // db
+    //     .select('maidenname')
+    //     .from('register')
+    //     .where({email: email})
+    //     .then(maidenNamex => {
+    //         if (maidenNamex[0].maidenname == maidenName) {
+    //             db('register')
+    //                 .update({password: hash})
+    //                 .where({email: email, maidenname: maidenName})
+    //                 .then(data => {
+    //                     if (data) {
+    //                         return res.json('Admin password updated');
+    //                     } else {
+    //                         return res.json('Admin password not updated');
+    //                     }
+    //                 })
+    //         } else {
+    //             db
+    //                 .select('email', 'maidenname')
+    //                 .from('register')
+    //                 .where({email: email})
+    //                 .then(data => {
+    //                     const messageTemplate = `<h1>Password Recovery</h1>
+    //                                              <p>Your recovery datails are:
+    //                                              <br/>
+    //                                               <br/>
+    //                                               Email: ${data[0].email},
+    //                                               <br/>
+    //                                               Maiden Name: ${data[0].maidenname}.
+    //                                               <br/>
+    //                                               <br/>
+    //                                               Thanks.
+    //                                               </p>
+    //                                               `;
+
+    //                     const transporter = nodeMailer.createTransport({
+
+    //                         service: 'gmail',
+    //                         host: 'smtp.gmail.com',
+    //                         port: 465,
+    //                         secure: true,
+    //                         auth: {
+    //                             user: process.env.REACT_APP_USER,
+    //                             pass: process.env.REACT_APP_PASSWORD
+    //                         }
+    //                     })
+
+    //                     const info = transporter.sendMail({
+    //                         from: {
+    //                             name: 'Godwin',
+    //                             address: process.env.REACT_APP_USER
+    //                         },
+    //                         to: process.env.REACT_APP_USER,
+    //                         subject: 'Password Recovery',
+    //                         html: messageTemplate
+    //                     })
+    //                     const sendMail = async(transporter, info) => {
+    //                         try {
+    //                             await transporter.sendMail(info);
+    //                             res.json("Login Details sent your your email")
+    //                         } catch (error) {
+    //                             res.json("Check your email or make sure your network connection is good")
+    //                         }
+    //                     }
+
+    //                     sendMail(transporter, info);
+    //                 }
+    //                 )
+    //                 .catch(err => res.status(400).json('You are not the admin'))
+    //         }
+    //     })
+    //     .catch(err => res.status(400).json('erro getting user'))
 })
 
 // Get Cv
-app.get('/cvs', (req, res) => {
-    return db
-        .select('*')
-        .from('cvs')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No CV added by this time'))
+app.get('/cvs', async(req, res) => {
+    const QUERY = " SELECT * FROM cvs ";
+    try
+    {
+    const result = await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No cv added or found');
+        throw(error);
+    }
 })
 
 //Add CV
@@ -695,45 +942,54 @@ const storageCv = multer.diskStorage({
 
 const uploadCv = multer({storage: storageCv});
 
-app.post('/cvs', uploadCv.single('cv'), (req, res) => {
-    const cv = req.file.filename;
-    db('cvs')
-        .insert({cv: cv})
-        .then(photo => {
-            return res.json('CV uploaded')
-        })
+app.post('/cvs', uploadCv.single('cv'), async(req, res) => {
+    const cv = req.file.filename
+    const QUERY = " INSERT INTO cvs (cv) VALUES (?)";
+    try
+    {
+    const result = await client.query(QUERY,[cv]);
+    if(result)
+    return res.json('CV added');
+    }
+    catch(error){
+        console.log('CV not added');
+        throw(error);
+    }
 })
 
 // Delete CV
-app.delete('/cvs/:id', (req, res) => {
-   
-        db
-        .select('cv')
-        .from('cvs')
-        .where({id: req.params.id})
-        .then(data => {
-                db
-                .delete('*')
-                .from('cvs')
-                .where({cv: data[0].cv})
-                .then(datax => {
-                        fs.unlinkSync(`public/CV_images/${data[0].cv}`) //deleting file from folder
-                        return res.json("CV deleted");
-                })
-                .catch(err => res.status(400).json('CV not deleted'))
-            
-        })
+app.delete('/cvs/:id', async(req, res) => {
+    const QUERY1 = " SELECT cv FROM cvs WHERE id = ?";
+    const QUERY2 = " DELETE FROM cvs WHERE  cv = ?";
+    try
+    {
+    const cv = await client.query(QUERY1,[req.params.id]);
+    const result = await client.query(QUERY2,[cv[0][0].cv]);
+    if(result){
+        fs.unlinkSync(`public/CV_images/${cv[0][0].cv}`) //deleting file from folder
+        return res.json("Resume deleted");
+    }
+    return res.json("Resume not deleted");
+    }
+    
+    catch(error){
+        console.log('No Resume added or found');
+        throw(error);
+    }
 })
 
 // Get photo
-app.get('/photos', (req, res) => {
-    return db
-        .select('*')
-        .from('photos')
-        .then(data => {
-            res.json(data);
-        })
-        .catch(err => res.status(400).json('No Photo added by this time'))
+app.get('/photos', async (req, res) => {
+    const QUERY = " SELECT * FROM photos ";
+    try
+    {
+    const result =await client.query(QUERY);
+    return res.json(result[0]);
+    }
+    catch(error){
+        console.log('No photo added');
+        throw(error);
+    }
 })
 
 //Add Photo
@@ -748,58 +1004,72 @@ const storagePhotos = multer.diskStorage({
 
 const uploadPhotos = multer({storage: storagePhotos});
 
-app.post('/photos', uploadPhotos.single('photo'), (req, res) => {
+app.post('/photos', uploadPhotos.single('photo'), async(req, res) => {
     const photo = req.file.filename;
-    db('photos')
-        .insert({photo: photo})
-        .then(photo => {
-            return res.json('Photo added')
-        })
+    const QUERY = " INSERT INTO photos (photo) VALUES (?)";
+    try
+    {
+    const result = await client.query(QUERY,[photo]);
+    if(result)
+    return res.json('Photo uploaded');
+    }
+    catch(error){
+        console.log('Photo not uploaded');
+        throw(error);
+    }
+
 })
 
 // Delete Photo
-app.delete('/photos/:id', (req, res) => {
+app.delete('/photos/:id', async(req, res) => {
+    const QUERY1 = " SELECT photo FROM photos WHERE id = ?";
+    const QUERY2 = " DELETE FROM photos WHERE  photo = ?";
+    try
+    {
+    const photo = await client.query(QUERY1,[req.params.id]);
+    const result = await client.query(QUERY2,[photo[0][0].photo]);
+    if(result){
+        fs.unlinkSync(`public/photo_images/${photo[0][0].photo}`) //deleting file from folder
+        return res.json("Photo deleted");
+    }
+    return res.json("Photo not deleted");
+    }
+    
+    catch(error){
+        console.log('No Photo added or found');
+        throw(error);
+    }
    
-       
-        db
-        .select('photo')
-        .from('photos')
-        .where({id: req.params.id})
-        .then(data => {
-                db.delete('photo')
-                .from('photos')
-                .where({photo: data[0].photo})
-                .then(datax => {
-                        fs.unlinkSync(`public/photo_images/${data[0].photo}`) //deleting file from folder
-                    return res.json("Photo deleted");
-                })
-                .catch(err => res.status(400).json('Photo not deleted'))
-           
-        })
 })
 
 // Delete all Photos
-app.delete('/photos', (req, res) => {
-   
-        db
-        .select('photo')
-        .from('photos')
-        .then(data => {
-                db
-                .delete('*')
-                .from('photos')
-                .then(datax => {
-                fs.unlinkSync(`public/photo_images/${data}`) //deleting file from folder
-                    return res.json("All Photos deleted");
-                })
-                .catch(err => res.status(400).json('All Photos not deleted'))
-            
-        })
+app.delete('/photos', async(req, res) => {
+    const QUERY1 = " SELECT * FROM photos";
+    const QUERY2 = " DELETE FROM photos";
+    try
+    {
+    const photos = await client.query(QUERY1);
+    const result = await client.query(QUERY2);
+    if(result){
+        fs.unlinkSync(`public/photo_images/${photos[0]}`) //deleting file from folder
+        return res.json("Photos deleted");
+    }
+    return res.json("Photos not deleted");
+    }
+    
+    catch(error){
+        console.log('No photo added or found');
+        throw(error);
+    }
 })
 
-// const PORT = process.env.PORT
-// app.listen(PORT || 3002, function () {
-//     console.log(`Sever running at port: ${PORT}`);
-// });
-
-app.listen(3000,function(){ console.log('Sever running at port: 3000'); });
+connectToDatabase().then(()=>{
+    const PORT = process.env.PORT
+    app.listen(PORT || 3002, function () {
+    console.log(`Sever running at port: ${PORT}`); });
+})
+.catch((error)=>{
+    console.log("Error occured during database connection");
+    console.log(error);
+    process.exit(0);
+});
