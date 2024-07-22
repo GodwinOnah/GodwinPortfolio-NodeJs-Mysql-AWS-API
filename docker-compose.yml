@@ -58,13 +58,13 @@ services:
     expose:
       - 3000
     depends_on:
-      - mysqldb
+      - af50be35e4e3e4c8aa7355703f542d72-8894186.eu-north-1.elb.amazonaws.com
     environment:
-      DB_HOST: mysqldb
+      DB_HOST: af50be35e4e3e4c8aa7355703f542d72-8894186.eu-north-1.elb.amazonaws.com
       DB_USER: Godwin 
       DB_ROOT_PASSWORD: pass
       DB_NAME: portfoliodb
-      DB_PORT: 3306
+      DB_PORT: 80
       DB_CONNECTION_LIMIT: 10
       SERVER_PORT: 3000 # container port
       SERVICE_TAGS: prod
