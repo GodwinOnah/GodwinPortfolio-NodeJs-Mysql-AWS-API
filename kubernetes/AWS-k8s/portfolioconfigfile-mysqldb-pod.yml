@@ -8,6 +8,6 @@ metadata:
 spec:
   containers:
   - name: portfolio-mysql-container
-    image: 767398061185.dkr.ecr.eu-north-1.amazonaws.com/godwin-portfolio-app-mysqldb:latest
+    image: daddykiki/potfoliodatabase #image from docker hub
     ports:
     - containerPort: 80
