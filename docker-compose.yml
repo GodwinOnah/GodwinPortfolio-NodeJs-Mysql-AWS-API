@@ -13,8 +13,8 @@ services:
       - 3307
     environment: 
       MYSQL_USER: Godwin
-      MYSQL_PASSWORD: pass
-      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_PASSWORD: godwin1
+      MYSQL_ROOT_PASSWORD: godwin1
       MYSQL_DATABASE: portfoliodb
       SERVICE_TAGS: prod
       SERVICE_NAME: mysqldbservice
@@ -34,20 +34,6 @@ services:
     networks:
       - internalnet
 
-  # postgredb:
-  #  container_name: postgresqlcontainer
-  #  image: postgres
-  #  environment:
-  #      POSTGRES_USER: Godwin
-  #      POSTGRES_PASSWORD: secret
-  #  ports:
-  #    - 5432:5432      
-  #  volumes:
-  #     - ./dbinit/init.sql:/docker-entrypoint-initdb.d/0_init.sql
-  #  networks:
-  #     - internalnet
-
-
   nodeapp:
     container_name: nodeappcontainer
     build: .
@@ -58,9 +44,9 @@ services:
     expose:
       - 3000
     depends_on:
-      - af50be35e4e3e4c8aa7355703f542d72-8894186.eu-north-1.elb.amazonaws.com
+      - mysqldb
     environment:
-      DB_HOST: af50be35e4e3e4c8aa7355703f542d72-8894186.eu-north-1.elb.amazonaws.com
+      DB_HOST: mysqldb
       DB_USER: Godwin 
       DB_ROOT_PASSWORD: pass
       DB_NAME: portfoliodb
