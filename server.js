@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import knex from 'knex';
 import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
@@ -235,20 +234,6 @@ app.delete('/trainings/:id', async(req, res) => {
         console.log('No training added or found');
         throw(error);
     }
-        // db.select('certificate')
-        // .from('trainings')
-        // .where({id: req.params.id})
-        // .then(data => {
-        //         db
-        //         .delete('*')
-        //         .from('trainings')
-        //         .where({certificate: data[0].certificate})
-        //         .then(datax => {
-        //                 fs.unlinkSync(`public/certificates/${data[0].certificate}`) //deleting file from folder
-        //                 return res.json("Training deleted");
-        //         })
-        //         .catch(err => res.status(400).json('Trainning not deleted'))         
-        // })
 })
 
 // Delete all Trainings
@@ -371,12 +356,6 @@ app.post('/skills', async(req, res) => {
             .json('Skill not recieved');
         return;
     }
-    // db('skills')
-    //     .insert(skill)
-    //     .then(skillx => {
-    //         return res.json('Skill added')
-    //     })
-    //     .catch(err => res.status(400).json('Skill not added'))
 })
 
 //PUBLIC MESSAGE Get Public Message
@@ -431,10 +410,10 @@ app.delete('/pmessages', async(req, res) => {
 //  Add public message
 app.post('/pmessages', async(req, res) => {
     const pmessage = req.body;
-    const QUERY = " INSERT INTO pmessages (pmessages) VALUES (?)";
+    const QUERY = " INSERT INTO pmessages (pmessage) VALUES (?)";
     try
     {
-    const result = await client.query(QUERY,[pmessage]);
+    const result = await client.query(QUERY,[pmessage.pmessage]);
     if(result)
     return res.json('Advert added');
     }
@@ -479,11 +458,11 @@ app.delete('/profiles/:id', async(req, res) => {
 //  Add Profile
 app.post('/profiles', async(req, res) => {
     
-    const {profile, profileTitle} = req.body;
-    const QUERY = " INSERT INTO profiles (profile, profiletitle) VALUES (?,?)";
+    const {profileTitle, profile} = req.body;
+    const QUERY = " INSERT INTO profiles (profiletitle, profile) VALUES (?,?)";
     try
     {
-    const result = await client.query(QUERY,[profile, profileTitle]);
+    const result = await client.query(QUERY,[profileTitle,profile]);
     if(result)
     return res.json('New profile summary added');
     }
@@ -495,12 +474,11 @@ app.post('/profiles', async(req, res) => {
 
 // Update Profile
 app.put('/profiles', async (req, res) => {
-    const {profile, profileTitle} = req.body;
-
+    const {profileTitle, profile} = req.body;
     const QUERY = " UPDATE profiles SET profile = ?, profiletitle = ? ";
     try
     {
-    const result = await client.query(QUERY,[profile, profileTitle]);
+    const result = await client.query(QUERY,[profileTitle, profile]);
     return res.json(result[0]);
     }
     catch(error){
@@ -510,7 +488,7 @@ app.put('/profiles', async (req, res) => {
 })
 
 // HOBBY Get Hobbies
-app.get('/Hobbies', async (req, res) => {
+app.get('/hobbies', async (req, res) => {
 
     const QUERY = " SELECT * FROM hobbies ";
     try
@@ -561,10 +539,10 @@ app.delete('/hobbies', async(req, res) => {
 //  Add Hobby
 app.post('/hobbies', async(req, res) => {
     const hobby = req.body;
-    const QUERY = " INSERT INTO hobbies(hobby) VALUES(?)";
+    const QUERY = " INSERT INTO hobbies (hobby) VALUES (?)";
     try
     {
-    const result = await client.query(QUERY,[hobby]);
+    const result = await client.query(QUERY,[hobby.hobby]);
     if(result)
     return res.json('New hobby added');
     }
@@ -607,7 +585,7 @@ app.delete('/phone/:id', async(req, res) => {
 
 // Delete all Phone
 app.delete('/phone', async(req, res) => {
-    const QUERY = " DELETE FROM hobbies";
+    const QUERY = " DELETE FROM phone";
     try
     {
     const result = await client.query(QUERY);
@@ -625,10 +603,11 @@ app.delete('/phone', async(req, res) => {
 // Add Phonenumber
 app.post('/phone', async(req, res) => {
     const phone = req.body;
-    const QUERY = " INSERT INTO phone(phone) VALUES(?)";
+    console.log(phone)
+    const QUERY = "INSERT INTO phone(phone) VALUES(?)";
     try
     {
-    const result = await client.query(QUERY,[phone]);
+    const result = await client.query(QUERY,[phone.phone]);
     if(result)
     return res.json('New phone number added');
     }
@@ -842,78 +821,6 @@ app.put('/register', async (req, res) => {
         throw(error);
     }
     
-    // db
-    //     .select('maidenname')
-    //     .from('register')
-    //     .where({email: email})
-    //     .then(maidenNamex => {
-    //         if (maidenNamex[0].maidenname == maidenName) {
-    //             db('register')
-    //                 .update({password: hash})
-    //                 .where({email: email, maidenname: maidenName})
-    //                 .then(data => {
-    //                     if (data) {
-    //                         return res.json('Admin password updated');
-    //                     } else {
-    //                         return res.json('Admin password not updated');
-    //                     }
-    //                 })
-    //         } else {
-    //             db
-    //                 .select('email', 'maidenname')
-    //                 .from('register')
-    //                 .where({email: email})
-    //                 .then(data => {
-    //                     const messageTemplate = `<h1>Password Recovery</h1>
-    //                                              <p>Your recovery datails are:
-    //                                              <br/>
-    //                                               <br/>
-    //                                               Email: ${data[0].email},
-    //                                               <br/>
-    //                                               Maiden Name: ${data[0].maidenname}.
-    //                                               <br/>
-    //                                               <br/>
-    //                                               Thanks.
-    //                                               </p>
-    //                                               `;
-
-    //                     const transporter = nodeMailer.createTransport({
-
-    //                         service: 'gmail',
-    //                         host: 'smtp.gmail.com',
-    //                         port: 465,
-    //                         secure: true,
-    //                         auth: {
-    //                             user: process.env.REACT_APP_USER,
-    //                             pass: process.env.REACT_APP_PASSWORD
-    //                         }
-    //                     })
-
-    //                     const info = transporter.sendMail({
-    //                         from: {
-    //                             name: 'Godwin',
-    //                             address: process.env.REACT_APP_USER
-    //                         },
-    //                         to: process.env.REACT_APP_USER,
-    //                         subject: 'Password Recovery',
-    //                         html: messageTemplate
-    //                     })
-    //                     const sendMail = async(transporter, info) => {
-    //                         try {
-    //                             await transporter.sendMail(info);
-    //                             res.json("Login Details sent your your email")
-    //                         } catch (error) {
-    //                             res.json("Check your email or make sure your network connection is good")
-    //                         }
-    //                     }
-
-    //                     sendMail(transporter, info);
-    //                 }
-    //                 )
-    //                 .catch(err => res.status(400).json('You are not the admin'))
-    //         }
-    //     })
-    //     .catch(err => res.status(400).json('erro getting user'))
 })
 
 // Get Cv
