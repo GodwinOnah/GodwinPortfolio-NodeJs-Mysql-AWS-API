@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     volumes: 
       - ./dbinit/init.sql:/docker-entrypoint-initdb.d/0_init.sql
-      - db_data_GOB:/var/lib/mysql #If you don't define this, logging into a workbench will prompt errors
+      - db_data_O:/var/lib/mysql #If you don't define this, logging into a workbench will prompt errors
     ports: 
        - 3307:3306 # mapping from local port to container port
     expose:
@@ -50,4 +50,4 @@ networks:
     driver: bridge
        
 volumes:
-  db_data_GOB:
+  db_data_O:

@@ -71,8 +71,7 @@ app.get('/underconstruction', async (req, res) => {
 
 // PROJECT Get Projects
 app.get('/projects', async (req, res) => {
-
-    const QUERY = " SELECT * FROM projects ";
+   const QUERY = " SELECT * FROM projects ";
     try
     {
     const result =await client.query(QUERY);
@@ -85,7 +84,6 @@ app.get('/projects', async (req, res) => {
 })
 
 app.delete('/projects/:id', async(req, res) => {
-
     const QUERY = " DELETE FROM projects WHERE id = ?";
     try
     {
@@ -110,8 +108,7 @@ app.delete('/projects', async(req, res) => {
     if(result)
     return res.json("All project(s) deleted");
     return res.json("Project(s) not deleted");
-    }
-    
+    }   
     catch(error){
         console.log('No project added or found');
         throw(error);
@@ -137,7 +134,6 @@ app.post('/projects', async (req, res) => {
 
 // Education Get Schools
 app.get('/schools', async (req, res) => {
-
     const QUERY = " SELECT * FROM schools ";
     try
     {
@@ -158,8 +154,7 @@ app.delete('/schools/:id', async (req, res) => {
     if(result)
     return res.json("Schools deleted");
     return res.json("Schools not deleted");
-    }
-    
+    }  
     catch(error){
         console.log('No school added or found');
         throw(error);
@@ -196,8 +191,7 @@ app.post('/schools', async (req, res) => {
     catch(error){
         console.log('School Not added');
         throw(error);
-    }
-    
+    }  
 })
 
 // Get Trainigs
@@ -475,7 +469,7 @@ app.post('/profiles', async(req, res) => {
 // Update Profile
 app.put('/profiles', async (req, res) => {
     const {profileTitle, profile} = req.body;
-    const QUERY = " UPDATE profiles SET profile = ?, profiletitle = ? ";
+    const QUERY = " UPDATE profiles SET profiletitle = ?, profile = ? ";
     try
     {
     const result = await client.query(QUERY,[profileTitle, profile]);
@@ -554,7 +548,7 @@ app.post('/hobbies', async(req, res) => {
 
 // PHONE Get Phonenumbers
 app.get('/phone', async (req, res) => {
-    const QUERY = " SELECT * FROM phone ";
+    const QUERY = " SELECT * FROM phone";
     try
     {
     const result = await client.query(QUERY);
@@ -583,31 +577,27 @@ app.delete('/phone/:id', async(req, res) => {
     }
 })
 
-// Delete all Phone
-app.delete('/phone', async(req, res) => {
-    const QUERY = " DELETE FROM phone";
+app.put('/phone', async (req, res) => {
+    const {phone,myEmail,linkedIn,instagramName} = req.body;
+    const QUERY = " UPDATE phone SET phone = ?, myemail = ?, linkedin = ?, instagramname = ? ";
     try
     {
-    const result = await client.query(QUERY);
-    if(result)
-    return res.json("Phones deleted");
-    return res.json("Phones not deleted");
+    const result = await client.query(QUERY,[phone,myEmail,linkedIn,instagramName]);
+    return res.json(result[0]);
     }
-    
     catch(error){
-        console.log('No phone found');
+        console.log('Profile not updated');
         throw(error);
     }
 })
 
 // Add Phonenumber
 app.post('/phone', async(req, res) => {
-    const phone = req.body;
-    console.log(phone)
-    const QUERY = "INSERT INTO phone(phone) VALUES(?)";
+    const {phone,myEmail,linkedIn,instagramName} = req.body;
+    const QUERY = "INSERT INTO phone(phone,myemail,linkedin,instagramname) VALUES(?,?,?,?)";
     try
     {
-    const result = await client.query(QUERY,[phone.phone]);
+    const result = await client.query(QUERY,[phone,myEmail,linkedIn,instagramName]);
     if(result)
     return res.json('New phone number added');
     }
@@ -622,7 +612,7 @@ app.get('/messages', async (req, res) => {
     const QUERY = " SELECT * FROM messages ";
     try
     {
-    const result =await client.query(QUERY);
+    const result = await client.query(QUERY);
     return res.json(result[0]);
     }
     catch(error){
