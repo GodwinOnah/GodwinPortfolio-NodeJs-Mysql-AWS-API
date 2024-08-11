@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio-nodejs-app-deployment
+  labels:
+    app: portfolio-nodejs-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: portfolio-nodejs-app
+  template:
+    metadata:
+      labels:
+        app: portfolio-nodejs-app
+    spec:
+      containers:
+        - name: portfolio-nodejs-app
+          image: 767398061185.dkr.ecr.eu-north-1.amazonaws.com/godwin-portfolio-app ##image from AWS ECR
+          volumeMounts:
+          - name: shared
+            mountPath: /shared
+          ports:
+            - containerPort: 3000
+        - name: portfolio-mysql-app
+          image: 767398061185.dkr.ecr.eu-north-1.amazonaws.com/godwin-portfolio-app-mysqldb #image from AWS ECR
+          volumeMounts:
+          - name: shared
+            mountPath: /shared
+          ports:
+            - containerPort: 3306
+        - name: portfolio-phpmyadmin-app
+          image: 767398061185.dkr.ecr.eu-north-1.amazonaws.com/godwin-portfolio-phpmyadmin-app ##image from AWS ECR
+          volumeMounts:
+          - name: shared
+            mountPath: /shared
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+
+      volumes:
+      - name: shared
+        emptyDir: {}
+
+
+apiVersion: v1
+kind: Service
+metadata:
+ name: portfolio-nodejs-app
+spec:
+ selector:
+  app:  portfolio-nodejs-app
+ ports:
+ - name: node-app
+   protocol: TCP
+   nodePort: 30000
+   port: 3000
+   targetPort: 3000
+ - name: mysql
+   protocol: TCP
+   nodePort: 30001
+   port: 3306
+   targetPort: 3306
+ - name: phpmyadmin
+   protocol: TCP
+   nodePort: 30002
+   port: 8080
+   targetPort: 8080
+ type: NodePort
+
