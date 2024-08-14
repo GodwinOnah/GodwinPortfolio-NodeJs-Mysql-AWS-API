@@ -2,11 +2,12 @@ services:
 
   mysqldb:
     container_name: mysqlcontainer
+    # platform: linux/amd64
     image: mysql
     restart: unless-stopped
     volumes: 
       - ./dbinit/init.sql:/docker-entrypoint-initdb.d/0_init.sql
-      - db_data_O:/var/lib/mysql #If you don't define this, logging into a workbench will prompt errors
+      - db_data_GK:/var/lib/mysql #If you don't define this, logging into a workbench will prompt errors
     ports: 
        - 3307:3306 # mapping from local port to container port
     expose:
@@ -18,6 +19,7 @@ services:
 
   phpmyadmin:
     container_name: phpmyadmincontainer
+    platform: linux/amd64
     image: phpmyadmin
     restart: always
     depends_on:
@@ -32,6 +34,7 @@ services:
   nodeapp:
     container_name: nodeappcontainer
     build: .
+    # platform: linux/amd64
     image: nodeapp:v1
     restart: always
     ports: 
@@ -50,4 +53,4 @@ networks:
     driver: bridge
        
 volumes:
-  db_data_O:
+  db_data_GK:
