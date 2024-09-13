@@ -17,6 +17,20 @@ services:
     networks:
       - internalnet
 
+  jenkins:
+    image: jenkins/jenkins
+    container_name: jenkins-container
+#    user: root
+#    privileged: true
+    restart: always
+    ports:
+      - "8085:8080"
+      - "50000:50000"
+    volumes:
+      - db_data_GK:/var/jenkins_home
+    networks:
+      - internalnet
+
   phpmyadmin:
     container_name: phpmyadmincontainer
     platform: linux/amd64
