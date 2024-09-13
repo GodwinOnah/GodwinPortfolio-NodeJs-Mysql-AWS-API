@@ -3,11 +3,11 @@ services:
   mysqldb:
     container_name: mysqlcontainer
     # platform: linux/amd64
-    image: mysql
+    image: mysql:latest
     restart: unless-stopped
     volumes: 
       - ./dbinit/init.sql:/docker-entrypoint-initdb.d/0_init.sql
-      - db_data_GK:/var/lib/mysql #If you don't define this, logging into a workbench will prompt errors
+      - db_data_mysql:/var/lib/mysql #If you don't define this, logging into a workbench will prompt errors
     ports: 
        - 3307:3306 # mapping from local port to container port
     expose:
@@ -27,7 +27,7 @@ services:
       - "8085:8080"
       - "50000:50000"
     volumes:
-      - db_data_GK:/var/jenkins_home
+      - db_data_jenkins:/var/jenkins_home
     networks:
       - internalnet
 
@@ -67,4 +67,5 @@ networks:
     driver: bridge
        
 volumes:
-  db_data_GK:
+  db_data_mysql:
+  db_data_jenkins:
