@@ -237,7 +237,6 @@ app.delete('/trainings', async(req, res) => {
     try
     {
     const certificate = await client.query(QUERY1);
-    console.log(certificate)
     const result = await client.query(QUERY2);
     if(result){
         fs.unlinkSync(`public/certificates/${certificate}`) //deleting file from folder
